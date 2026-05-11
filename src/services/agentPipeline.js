@@ -24,6 +24,77 @@ export function extractTail(text, maxChars = CONTEXT_TAIL_CHARS) {
   return breakIdx > 0 ? tail.slice(breakIdx).trim() : tail.trim();
 }
 
+// ─── M1: Parse Unified Translator output with separators ───
+// Output format from getUnifiedTranslatorPrompt:
+//   ---TRANSLATION---
+//   <vietnamese markdown>
+//   ---TERMS---
+//   <JSON array of terms>
+//   ---END---
+//
+// Robust to partial outputs (streaming cutoff, missing END, etc.)
+export function parseStreamedOutput(fullText) {
+  if (typeof fullText !== 'string' || !fullText) {
+    return { translated: '', newTerms: [] };
+  }
+
+  // Find separators (case-insensitive, allow surrounding whitespace)
+  const transStart = fullText.search(/---TRANSLATION---/i);
+  const termsStart = fullText.search(/---TERMS---/i);
+  const endMarker = fullText.search(/---END---/i);
+
+  // Case 1: no separators at all -> treat entire text as translation
+  if (transStart === -1 && termsStart === -1) {
+    return { translated: fullText.trim(), newTerms: [] };
+  }
+
+  // Case 2: has TRANSLATION marker, extract content between TRANSLATION and TERMS (or end)
+  let translated = '';
+  if (transStart !== -1) {
+    const transContentStart = transStart + '---TRANSLATION---'.length;
+    const transContentEnd = termsStart !== -1 ? termsStart : fullText.length;
+    translated = fullText.slice(transContentStart, transContentEnd).trim();
+  } else {
+    // Has TERMS but no TRANSLATION header -> take everything before TERMS as translation
+    translated = fullText.slice(0, termsStart).trim();
+  }
+
+  // Case 3: extract TERMS JSON
+  let newTerms = [];
+  if (termsStart !== -1) {
+    const termsContentStart = termsStart + '---TERMS---'.length;
+    const termsContentEnd = endMarker !== -1 ? endMarker : fullText.length;
+    const termsRaw = fullText.slice(termsContentStart, termsContentEnd).trim();
+
+    if (termsRaw) {
+      try {
+        // Strip optional ```json fences
+        let cleaned = termsRaw;
+        if (cleaned.startsWith('```')) {
+          cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
+        }
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed)) {
+          newTerms = parsed.filter(t => t && typeof t === 'object' && t.termEN && t.termVI);
+        }
+      } catch {
+        // Malformed JSON -> silently ignore terms, keep translation
+        newTerms = [];
+      }
+    }
+  }
+
+  return { translated, newTerms };
+}
+
+// Helper: detect if a streaming chunk has passed the TRANSLATION/TERMS boundary
+// Returns the position where translation text ends in the cumulative stream
+export function findTranslationEnd(fullText) {
+  if (typeof fullText !== 'string') return -1;
+  const idx = fullText.search(/---TERMS---/i);
+  return idx === -1 ? -1 : idx;
+}
+
 /**
  * Parse analyst JSON response, handling markdown code fences.
  */
