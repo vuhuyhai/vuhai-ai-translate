@@ -19,7 +19,7 @@ export const UserBadge = React.memo(function UserBadge({ user, onUpgrade, onSign
   const isAnon = user.isAnonymous;
   const displayName = user.displayName || (user.email ? user.email.split('@')[0] : null) || 'Khách';
   const initial = isAnon ? '?' : (displayName[0] || '?').toUpperCase();
-  const avatarUrl = user.photoURL || (!isAnon ? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=e04544&color=fff&size=64&bold=true` : null);
+  const avatarUrl = user.photoURL || (!isAnon ? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=D4582E&color=fff&size=64&bold=true` : null);
 
   return (
     <div className="user-badge" ref={dropdownRef}>

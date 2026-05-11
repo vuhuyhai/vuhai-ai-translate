@@ -1,0 +1,133 @@
+/**
+ * VuHai AI Translate — Bento P1 override for Header + UserBadge
+ * M1.2 — first visible Bento component.
+ *
+ * Strategy: Override block. Same selectors as src/index.css.
+ * Loaded AFTER index.css rules (via @import at END of index.css).
+ * Touch only color/font/radius/weight; structure (size, position, flex)
+ * stays the same to avoid layout regression.
+ */
+
+/* ─── App Header ──────────────────────────────────────────── */
+.app-header {
+  background: var(--bento-bg-card);
+  border-bottom: 1px solid var(--bento-border);
+}
+
+.app-header-logo {
+  background: var(--bento-accent);
+  border-radius: var(--bento-radius);
+}
+
+.app-header-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body-lg);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.app-header-sep {
+  background: var(--bento-border);
+}
+
+.app-header-context {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+  font-weight: 500;
+}
+
+.app-header .btn-icon {
+  color: var(--bento-text-secondary);
+  border-radius: var(--bento-radius);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.app-header .btn-icon:hover {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-accent);
+}
+
+/* ─── User Badge ──────────────────────────────────────────── */
+.user-upgrade-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--bento-accent);
+  border-radius: var(--bento-radius);
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.user-upgrade-btn:hover {
+  background: var(--bento-accent-hi);
+  color: #FFFFFF;
+}
+
+.user-avatar-btn {
+  border-radius: 50%;
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  transition: border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.user-avatar-btn:hover {
+  border-color: var(--bento-accent);
+}
+
+.user-avatar-initial {
+  color: var(--bento-text-primary);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 600;
+}
+
+/* ─── Dropdown ────────────────────────────────────────────── */
+.user-dropdown {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  box-shadow: 0 8px 32px var(--bento-accent-glow),
+              0 2px 8px rgba(42, 37, 32, 0.04);
+}
+
+.user-dropdown-avatar-placeholder {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent);
+  font-family: var(--bento-font-display);
+  font-weight: 500;
+}
+
+.user-dropdown-name {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+}
+
+.user-dropdown-email {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+}
+
+.user-dropdown-divider {
+  background: var(--bento-border);
+}
+
+.user-dropdown-item {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.user-dropdown-item:hover {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-accent);
+}
