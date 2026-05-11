@@ -1,7 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { fetchAICompletion } from '../services/aiService';
-import { runAgentPipeline, extractTail } from '../services/agentPipeline';
+import {
+  runAgentPipeline,
+  extractTail,
+  findTranslationEnd,
+} from '../services/agentPipeline.js';
 import { extractTermsFromSection } from '../services/glossaryService';
 import { getReviewPrompt } from '../constants/prompts';
 import { getTopic, getAudience, getProvider } from '../constants/config';
@@ -165,9 +169,25 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       if (now - last < 66) return;
       streamThrottleRef.current[sectionId] = now;
 
+      // ─── M1.3: Filter out TERMS section from streaming UI ───
+      // If output uses unified format with separators, only show text
+      // between ---TRANSLATION--- and ---TERMS---
+      let displayText = fullText;
+      const transStart = fullText.search(/---TRANSLATION---/i);
+      if (transStart !== -1) {
+        const contentStart = transStart + '---TRANSLATION---'.length;
+        const termsEnd = findTranslationEnd(fullText);
+        const contentEnd = termsEnd !== -1 ? termsEnd : fullText.length;
+        displayText = fullText.slice(contentStart, contentEnd).trimStart();
+      }
+      // If no TRANSLATION marker found, leave fullText as-is (legacy pipeline)
+
       setSectionStates(prev => ({
         ...prev,
-        [sectionId]: { ...prev[sectionId], streamingTranslated: fullText },
+        [sectionId]: {
+          ...prev[sectionId],
+          streamingTranslated: displayText,
+        },
       }));
     };
   }, []);
