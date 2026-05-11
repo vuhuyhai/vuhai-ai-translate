@@ -24,11 +24,6 @@ export function getReviewerModel(keyTier) {
   return REVIEWER_MODELS[keyTier] || REVIEWER_MODELS.free;
 }
 
-// ─── Legacy export kept for backward compat with agentPipeline.js ───
-// agentPipeline.js still imports QUICK_MODE_MODEL directly (will be migrated to
-// getTranslatorModel in M2.4 when removing runAgentPipeline).
-export const QUICK_MODE_MODEL = 'gemini-2.5-flash';
-
 // ─── Reference: Gemini rate limits (Jan 2026, free tier) ───
 // Kept as comments for documentation; not enforced programmatically.
 // gemini-2.5-pro:        5 RPM,  100 RPD
