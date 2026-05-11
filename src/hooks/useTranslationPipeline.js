@@ -51,8 +51,8 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
     }
 
     // Retry up to 2 times
+    let lastError = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      let lastError;
       try {
         const totalWords = sections.reduce((sum, s) => {
           const text = s.text || s.pages?.map(p => p.text).join(' ') || '';
