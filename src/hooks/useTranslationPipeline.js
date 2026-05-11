@@ -2,13 +2,10 @@ import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { fetchAICompletion } from '../services/aiService';
 import {
-  // eslint-disable-next-line no-unused-vars -- M1.5: kept for M1.6 search-replace + DocumentViewerPage compat
-  runAgentPipeline,
   runTranslationPipeline as runTranslationPipelineService,
   extractTail,
   findTranslationEnd,
 } from '../services/agentPipeline.js';
-import { extractTermsFromSection } from '../services/glossaryService';
 import { getReviewPrompt } from '../constants/prompts';
 import { getTopic, getAudience, getProvider } from '../constants/config';
 import useGlossaryStore from '../stores/glossaryStore';
@@ -25,17 +22,6 @@ const STOP_CODES = [API_ERROR_CODES.INVALID_KEY, API_ERROR_CODES.KEY_REVOKED, AP
 function buildPromptWithGlossary(basePrompt) {
   const glossaryPrompt = useGlossaryStore.getState().getGlossaryPrompt();
   return glossaryPrompt ? basePrompt + glossaryPrompt : basePrompt;
-}
-
-// @deprecated M1.5 — unified pipeline now extracts terms inline via newTerms[].
-// Kept for potential external callers (e.g. DocumentViewerPage retranslate).
-// eslint-disable-next-line no-unused-vars
-async function extractAndStoreTerms(sourceText, topic) {
-  try {
-    const terms = await extractTermsFromSection(sourceText, topic);
-    if (terms.length > 0) return useGlossaryStore.getState().addEntries(terms);
-  } catch { /* non-blocking */ }
-  return 0;
 }
 
 export function useTranslationPipeline(sections, fileMetadata = null) {

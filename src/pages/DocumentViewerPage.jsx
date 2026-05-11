@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { libraryService } from '../services/libraryService';
-import { runAgentPipeline } from '../services/agentPipeline';
+import { runTranslationPipeline, extractTail } from '../services/agentPipeline.js';
 import { getTopic, getAudience } from '../constants/config';
+import useKeyStore from '../stores/keyStore';
 import { buildExportText, downloadTextFile, downloadDocFile, copyToClipboard } from '../utils/textUtils';
 import { FormattedText } from '../components/FormattedText';
 import { ShareModal } from '../components/library/ShareModal';
@@ -52,9 +53,18 @@ export function DocumentViewerPage({ documentId, onBack }) {
     if (!selectedSection) return;
     setIsRetranslating(true);
     try {
-      const config = { topic: getTopic(), audience: getAudience(), mode: document.mode || 'quick' };
-      const result = await runAgentPipeline(selectedSection.originalText, config, () => {});
-      const newText = result.edited || result.translated || '';
+      // M1.6: Build previousContext from previous section (fix continuity bug from audit E1)
+      let previousContext = null;
+      if (selectedIdx > 0) {
+        const prevSection = document.sections[selectedIdx - 1];
+        if (prevSection?.translatedText) {
+          previousContext = { translatedTail: extractTail(prevSection.translatedText) };
+        }
+      }
+      const keyTier = useKeyStore.getState().keyTier;
+      const config = { topic: getTopic(), audience: getAudience(), mode: document.mode || 'quick', keyTier };
+      const result = await runTranslationPipeline(selectedSection.originalText, config, () => {}, { previousContext });
+      const newText = result.translated || '';
       await libraryService.saveManualEdit(documentId, selectedSection.id, newText, selectedSection.translatedText);
       setDocument(prev => ({
         ...prev,
