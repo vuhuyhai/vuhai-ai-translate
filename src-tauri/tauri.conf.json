@@ -1,0 +1,51 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "AI Translate",
+  "version": "1.0.0",
+  "identifier": "com.vuhai.ai-translate",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "AI Translate",
+        "width": 1400,
+        "height": 860,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://generativelanguage.googleapis.com https://api.anthropic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-eval'; img-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "copyright": "\u00a9 2025 VuHai. All rights reserved.",
+    "category": "Productivity",
+    "shortDescription": "D\u1ecbch t\u00e0i li\u1ec7u PDF Marketing Anh \u2192 Vi\u1ec7t b\u1eb1ng Gemini AI",
+    "longDescription": "AI Translate gi\u00fap d\u1ecbch t\u00e0i li\u1ec7u PDF chuy\u00ean ng\u00e0nh Marketing t\u1eeb ti\u1ebfng Anh sang ti\u1ebfng Vi\u1ec7t t\u1ef1 nhi\u00ean, chu\u1ea9n x\u00e1c b\u1eb1ng Gemini AI. H\u1ed7 tr\u1ee3 d\u1ecbch thu\u1eadt 2 b\u01b0\u1edbc: d\u1ecbch + duy\u1ec7t l\u1ea1i.",
+    "publisher": "VuHai",
+    "windows": {
+      "nsis": {
+        "displayLanguageSelector": true,
+        "languages": ["English", "Vietnamese"]
+      }
+    }
+  }
+}

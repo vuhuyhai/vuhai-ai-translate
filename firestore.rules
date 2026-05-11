@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User profiles
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Translated documents library
+    match /translated_documents/{docId} {
+      allow read: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Share links for documents
+    match /share_links/{linkId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Master glossary (per-user subcollection)
+    match /master_glossary/{uid}/terms/{termId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Activity log (per-user subcollection)
+    match /activity_log/{uid}/events/{eventId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
