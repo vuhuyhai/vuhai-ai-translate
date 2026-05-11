@@ -68,6 +68,10 @@ export function setAudience(audience) {
 }
 
 // ─── Section splitting ───
-export const SECTION_MIN_WORDS = 2000;
-export const SECTION_MAX_WORDS = 3000;
-export const SECTION_TARGET_WORDS = 2500;
+// M2.1: Section size optimized for Gemini 2.5 context window (2M tokens).
+// Target ~8000 English words ≈ 12,000 tokens input, output ~16,000 tokens.
+// Reduces section count from ~20 to ~6-7 per 50k-word ebook, cutting
+// prompt overhead repetition by ~30%.
+export const SECTION_MIN_WORDS = 6000;
+export const SECTION_MAX_WORDS = 10000;
+export const SECTION_TARGET_WORDS = 8000;
