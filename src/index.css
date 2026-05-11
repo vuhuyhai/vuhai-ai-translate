@@ -1,3 +1,14 @@
+/* ─── M1.1: @fontsource — Plus Jakarta Sans + JetBrains Mono ─── */
+@import '@fontsource/plus-jakarta-sans/400.css';
+@import '@fontsource/plus-jakarta-sans/500.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+/* ─── M1.1: Bento tokens (coexist với tokens cũ bên dưới) ─── */
+@import './styles/tokens.css';
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
 /* ═══════════════════════════════════════════

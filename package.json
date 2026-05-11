@@ -17,6 +17,8 @@
     "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/plus-jakarta-sans": "^5.2.8",
     "@react-pdf/renderer": "^4.3.2",
     "firebase": "^12.11.0",
     "firebase-admin": "^13.7.0",

@@ -1,0 +1,134 @@
+/**
+ * VuHai AI Translate — Bento Design Tokens
+ * Phương án: P1 Translator's Desk (Light Mode)
+ * Bento Grid v3.0 skill §1 (Mathematical Foundation) + §3 (8 Principles).
+ *
+ * RULE CỨNG:
+ * - 1 accent color (cinnamon #D4582E) — không thêm color thứ 2
+ * - 1 border-radius (20px) — không mix
+ * - 1 grid gap (24px) — toàn bộ Bento dùng giá trị này
+ * - Spacing là bội số của 8px (4px chỉ khi fine adjustment)
+ *
+ * COEXIST: Tokens này chạy SONG SONG với tokens cũ trong src/index.css.
+ * Mỗi component refactor (M1.3+) sẽ switch sang vars dưới đây.
+ * M1.16 cleanup xóa tokens cũ.
+ */
+
+:root {
+  /* ─── Colors (Light Bento P1 Cinnamon) ──────────────────── */
+  --bento-bg-page:        #FAF8F4;
+  --bento-bg-card:        #FFFFFF;
+  --bento-bg-card-hi:     #F5F1EA;
+  --bento-border:         rgba(42, 37, 32, 0.08);
+  --bento-border-hi:      rgba(42, 37, 32, 0.14);
+
+  --bento-text-primary:   #2A2520;
+  --bento-text-secondary: #6B5F52;
+  --bento-text-tertiary:  #9C9085;
+
+  --bento-accent:         #D4582E;
+  --bento-accent-hi:      #B8451F;
+  --bento-accent-glow:    rgba(212, 88, 46, 0.12);
+
+  /* ─── Spacing (8px baseline) ────────────────────────────── */
+  --bento-space-1:  8px;
+  --bento-space-2:  16px;
+  --bento-space-3:  24px;
+  --bento-space-4:  32px;
+  --bento-space-5:  48px;
+  --bento-space-6:  64px;
+  --bento-space-7:  80px;
+
+  /* ─── Typography ────────────────────────────────────────── */
+  --bento-font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --bento-font-body:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --bento-font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --bento-text-hero:     clamp(48px, 6vw, 72px);
+  --bento-text-h2:       clamp(32px, 4vw, 48px);
+  --bento-text-h3:       clamp(24px, 2.5vw, 32px);
+  --bento-text-body-lg:  18px;
+  --bento-text-body:     16px;
+  --bento-text-small:    14px;
+  --bento-text-micro:    12px;
+
+  --bento-card-primary:   64px;
+  --bento-card-secondary: 16px;
+  --bento-card-tertiary:  13px;
+
+  --bento-leading-tight:   1.25;
+  --bento-leading-normal:  1.5;
+  --bento-leading-relaxed: 1.7;
+
+  /* ─── Layout (Bento Grid) ───────────────────────────────── */
+  --bento-container-max: 1280px;
+  --bento-grid-cols:     12;
+  --bento-grid-gap:      24px;
+
+  /* ─── Radius (1 only — Bento §3.2) ──────────────────────── */
+  --bento-radius:        20px;
+
+  /* ─── Animation ─────────────────────────────────────────── */
+  --bento-ease-quiet:    cubic-bezier(0.25, 0.1, 0.25, 1);
+  --bento-dur-hover:     300ms;
+  --bento-dur-reveal:    500ms;
+  --bento-stagger:       80ms;
+}
+
+/* ─── Reduced motion (a11y) ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Bento Grid utility class (§1.1) ────────────────────── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--bento-grid-cols), minmax(0, 1fr));
+  gap: var(--bento-grid-gap);
+  max-width: var(--bento-container-max);
+  margin: 0 auto;
+  padding: 0 var(--bento-space-3);
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    padding: 0 var(--bento-space-5);
+  }
+}
+
+/* Mobile: 4-col, giữ asymmetry (§9 — KHÔNG stack 1 cột) */
+@media (max-width: 640px) {
+  .bento-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--bento-space-2);
+    padding: 0 var(--bento-space-2);
+  }
+}
+
+/* ─── Bento Card base ─────────────────────────────────────── */
+.bento-card {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: var(--bento-space-3);
+  transition:
+    background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+    border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.bento-card:hover {
+  background: var(--bento-bg-card-hi);
+  border-color: var(--bento-border-hi);
+}
+
+/* ─── Vietnamese typography (§8) ──────────────────────────── */
+.bento-vi-headline {
+  font-family: var(--bento-font-display);
+  line-height: var(--bento-leading-tight);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
