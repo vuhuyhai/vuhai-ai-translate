@@ -1,6 +1,12 @@
 import { fetchAICompletion, streamAICompletion } from './aiService';
 import { buildGlossaryContext } from './glossaryService';
-import { getAnalystPrompt, getTranslatorPrompt, getEditorPrompt } from '../constants/agentPrompts';
+import {
+  getAnalystPrompt,
+  getTranslatorPrompt,
+  getEditorPrompt,
+  getUnifiedTranslatorPrompt,
+  getReviewerPrompt,
+} from '../constants/agentPrompts';
 import useGlossaryStore from '../stores/glossaryStore';
 import useKeyStore from '../stores/keyStore';
 import { QUICK_MODE_MODEL } from '../constants/modelConfig';
@@ -210,5 +216,90 @@ export async function runAgentPipeline(sectionText, config, onProgress, options 
     rawTranslated: translatedText,
     finalText: editedText,
     analysis,
+  };
+}
+
+// ─── M1.4: Single-call unified translator ───
+async function runUnifiedTranslator(sectionText, config, previousContext, options = {}) {
+  const { topic, audience, keyTier = 'free' } = config;
+  const { onStreamChunk, signal, glossaryTable = '' } = options;
+
+  const systemPrompt = getUnifiedTranslatorPrompt(topic, audience, glossaryTable, previousContext);
+  const model = keyTier === 'paid' ? 'gemini-2.5-pro' : QUICK_MODE_MODEL;
+
+  let rawText = '';
+
+  if (onStreamChunk) {
+    // Streaming mode — pass chunks through; hook already filters ---TERMS--- block
+    rawText = await streamAICompletion(systemPrompt, sectionText, {
+      signal,
+      onChunk: (chunk, fullText) => {
+        rawText = fullText;
+        onStreamChunk(chunk, fullText);
+      },
+      model,
+    });
+  } else {
+    rawText = await fetchAICompletion(systemPrompt, sectionText, { signal, model });
+  }
+
+  // Parse out translation and newTerms from separator-formatted output
+  const { translated, newTerms } = parseStreamedOutput(rawText);
+
+  return {
+    translated: translated || rawText,
+    rawTranslated: rawText,
+    newTerms: Array.isArray(newTerms) ? newTerms : [],
+  };
+}
+
+// ─── M1.4: Optional reviewer (only when options.enableReview=true) ───
+async function runReviewer(translatedText, config, previousContext, options = {}) {
+  const { topic, audience, keyTier = 'free' } = config;
+  const { signal } = options;
+
+  const systemPrompt = getReviewerPrompt(topic, audience, previousContext);
+  // Reviewer doesn't need Pro — flash is enough for polishing
+  const model = keyTier === 'paid' ? 'gemini-2.5-flash' : QUICK_MODE_MODEL;
+
+  const polished = await fetchAICompletion(systemPrompt, translatedText, { signal, model });
+  return polished;
+}
+
+// ─── M1.4: New unified pipeline entry point ───
+// Mirror signature of runAgentPipeline for drop-in replacement.
+// Default: 1 API call (translator). With options.enableReview=true: 2 calls (+reviewer).
+export async function runTranslationPipeline(sectionText, config, onProgress, options = {}) {
+  const { enableReview = false, previousContext = null } = options;
+
+  // Step 1: Translator (mandatory)
+  onProgress?.({ agent: 'translator', status: 'running' });
+  const result = await runUnifiedTranslator(sectionText, config, previousContext, options);
+  onProgress?.({ agent: 'translator', status: 'done' });
+
+  // Step 2: Reviewer (optional)
+  if (enableReview && result.translated) {
+    onProgress?.({ agent: 'editor', status: 'running' });
+    try {
+      const polished = await runReviewer(result.translated, config, previousContext, options);
+      onProgress?.({ agent: 'editor', status: 'done' });
+      return {
+        translated: polished,
+        rawTranslated: result.rawTranslated,
+        newTerms: result.newTerms,
+        analysis: null, // backward compat with old pipeline return shape
+      };
+    } catch (err) {
+      console.warn('[runTranslationPipeline] Reviewer failed, returning unrevised translation:', err);
+      onProgress?.({ agent: 'editor', status: 'error', error: err.message });
+      // Fall through to return without polish
+    }
+  }
+
+  return {
+    translated: result.translated,
+    rawTranslated: result.rawTranslated,
+    newTerms: result.newTerms,
+    analysis: null,
   };
 }
