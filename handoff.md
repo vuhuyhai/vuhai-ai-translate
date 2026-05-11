@@ -390,6 +390,75 @@ Hook `useTranslationPipeline()` export 1 function named `runTranslationPipeline`
 
 ---
 
+## 7.6. M2 Refactor — Section Sizing + Thinking Off + Cleanup (COMPLETE 2026-05-11)
+
+### Trạng thái
+- Hoàn thành 6 milestone: M2.1 → M2.6 (smoke test + deploy live).
+- Token result: **baseline 150,459 → M1 69,987 → M2 ~28k** (≈81% giảm cumulative so với baseline).
+- API calls: baseline 12 → M1 3 → **M2 1 call/doc** (test 7.8k từ short-circuit thành 1 section).
+- Dead code đã xóa: ~530 dòng across 6 file.
+
+### Architecture changes
+- **M2.1** — `SECTION_TARGET_WORDS` 2,500 → 8,000; `SECTION_MAX_WORDS` 3,000 → 10,000 (`constants/config.js`). PDF baseline 7,867 từ → 1 section duy nhất (trước đó 3 sections).
+- **M2.2** — `generationConfig.thinkingConfig.thinkingBudget = 0` cho gemini-2.5-flash (Pro luôn thinking, không tắt được); `temperature: 0.3`; `maxOutputTokens` dynamic theo input length thay vì hard 65,536. Thinking từ 55% (M1: 38,608) giảm còn ~0%.
+- **M2.3** — `constants/modelConfig.js` rewrite: bỏ 7 export dead (`AGENT_MODEL_MAP*`, `MODEL_RPM`, `MODEL_RPD`, `MODEL_MIN_INTERVAL_MS`, `getAgentModelMap`), thêm 2 getter rõ ràng `getTranslatorModel(keyTier)` + `getReviewerModel(keyTier)`. File 55 → 36 dòng.
+- **M2.4a** — Xóa `runAgentPipeline` (3-step legacy) khỏi `services/agentPipeline.js` + 4 hằng số model hardcoded (`ANALYST_MODEL_*`, `EDITOR_MODEL_*`) + 2 helper `parseAnalystResponse`/`formatAnalystContext` + import dead (`buildGlossaryContext`, `useGlossaryStore`, `useKeyStore`, 3 prompt getter). Migrate `runUnifiedTranslator`/`runReviewer` sang `getTranslatorModel`/`getReviewerModel`. File 305 → 152 dòng.
+- **M2.4b** — Xóa dead export trong `constants/agentPrompts.js` (`getAnalystPrompt`, `getTranslatorPrompt`, `getEditorPrompt`, `getQAPrompt`, helper `getTopicLabel`) và `constants/prompts.js` (`getTranslatePrompt`, 3 const support `FORMAT_INSTRUCTIONS`/`NEGATIVE_CONSTRAINTS`/`OUTPUT_FORMAT`); xóa `QUICK_MODE_MODEL` khỏi `modelConfig.js`. Tổng -192 dòng across 3 file.
+- **M2.4c** — Xóa `extractTermsFromSection` + 2 helper (`buildExtractPrompt`, `parseTermsResponse`) khỏi `services/glossaryService.js` (call site đã bỏ ở M1.5, function giờ orphan). File 126 → 41 dòng.
+- **M2.5** — Fix pre-existing bug `lastError` scope leak trong `hooks/useTranslationPipeline.js`: `let lastError;` declared bên trong `for` loop body (fresh binding mỗi iteration) → lift ra ngoài loop + init `null`. Vá ESLint `no-undef` + `no-unused-vars`. Bonus: hint detect (`permission`/`quota`/`size`) trong toast error giờ mới thực sự hoạt động.
+- **M2.6** — Smoke test PASS với 7/7 acceptance criteria; ~28k tokens (-81% vs baseline), 1 API call, 47 glossary terms, streaming UX ổn, không regression load doc cũ.
+
+### Files đã sửa (M2)
+- `src/constants/config.js` — section sizing (M2.1)
+- `src/services/geminiApi.js` — thinking off + temperature + dynamic maxOutputTokens (M2.2)
+- `src/constants/modelConfig.js` — rewrite (M2.3, M2.4b)
+- `src/services/agentPipeline.js` — remove runAgentPipeline + migrate model getters (M2.4a)
+- `src/constants/agentPrompts.js` — remove 5 dead exports + getTopicLabel (M2.4b)
+- `src/constants/prompts.js` — remove getTranslatePrompt + 3 dead consts (M2.4b)
+- `src/services/glossaryService.js` — remove extractTermsFromSection + 2 helpers (M2.4c)
+- `src/hooks/useTranslationPipeline.js` — fix lastError scope (M2.5)
+- `SMOKE_TEST_M2.md` — new file, M2.6 acceptance record
+
+### Code lines summary
+| File | Trước | Sau | Delta |
+|---|---|---|---|
+| modelConfig.js | 55 | 26 | -29 |
+| agentPipeline.js | 305 | 152 | -153 |
+| agentPrompts.js | 169 | 50 | -119 |
+| prompts.js | 244 | 181 | -63 |
+| glossaryService.js | 126 | 41 | -85 |
+| useTranslationPipeline.js | (fix scope) | — | 0 net |
+| **Tổng** | — | — | **~-530** |
+
+### Next milestone — M3 (OPTIONAL)
+M2 đã chạm gần ceiling. Nếu cần đào sâu thêm:
+1. **Monitoring** — log `usageMetadata` (`promptTokenCount`, `candidatesTokenCount`, `thoughtsTokenCount`) vào Firestore `analytics_events` để có baseline production thay vì chỉ Console.
+2. **Context caching** — Gemini API hỗ trợ cached content cho prompt dài (system prompt + glossary). Section ngắn không lợi nhiều, nhưng doc dài (nhiều sections) sẽ tiết kiệm.
+3. **AnalyticsTab admin** — thêm tab "Token Usage" hiển thị chart prompt/output/thinking theo ngày, top consumers, ước tính cost.
+4. **Rate limit client-side** — `MODEL_MIN_INTERVAL_MS` đã xóa ở M2.3 nhưng chưa có thay thế; nếu user spam translate cùng key paid (5 RPM Pro) sẽ bị 429. Cân nhắc throttle ở keyStore.
+
+### Deployment status
+- **Deployed:** 2026-05-11
+- **Production URL:** https://aitranslate.space
+- **Bundle hash:** CPXGxylx
+- **Backend:** Firebase Hosting (project `vuhai-translate`)
+- **Firestore rules:** deployed (no changes from baseline)
+- **Tags:**
+  - `m1-complete` — after M1.7 smoke test PASS
+  - `m2-complete` — after M2.6 close
+  - `v1.1.0-token-opt` — release tag
+- **Branch policy:** `refactor/token-optimization` đã merge vào `main`. Có thể giữ branch cho lịch sử hoặc xóa local + remote (lệnh: `git branch -d refactor/token-optimization && git push origin --delete refactor/token-optimization`).
+
+### Production smoke test checklist (đã pass)
+- [x] HTTP 200 trên aitranslate.space
+- [x] Bundle hash match local build
+- [x] UI render đúng: 7,867 từ -> 1 section duy nhất
+- [x] 1 API call to generativelanguage.googleapis.com
+- [x] Token logging visible in Console
+- [x] No regression vs M2 functional test (28k tokens, 47 glossary terms)
+
+---
+
 ## 8. Commands nhanh khi tiếp tục
 
 ```powershell
