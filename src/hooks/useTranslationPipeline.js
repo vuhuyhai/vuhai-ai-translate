@@ -2,7 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { fetchAICompletion } from '../services/aiService';
 import {
+  // eslint-disable-next-line no-unused-vars -- M1.5: kept for M1.6 search-replace + DocumentViewerPage compat
   runAgentPipeline,
+  runTranslationPipeline as runTranslationPipelineService,
   extractTail,
   findTranslationEnd,
 } from '../services/agentPipeline.js';
@@ -25,6 +27,9 @@ function buildPromptWithGlossary(basePrompt) {
   return glossaryPrompt ? basePrompt + glossaryPrompt : basePrompt;
 }
 
+// @deprecated M1.5 — unified pipeline now extracts terms inline via newTerms[].
+// Kept for potential external callers (e.g. DocumentViewerPage retranslate).
+// eslint-disable-next-line no-unused-vars
 async function extractAndStoreTerms(sourceText, topic) {
   try {
     const terms = await extractTermsFromSection(sourceText, topic);
@@ -213,7 +218,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
     // Use explicit previousContext if provided, otherwise fall back to ref
     const ctxToPass = previousContext !== undefined ? previousContext : prevContextRef.current;
 
-    const result = await runAgentPipeline(sourceText, config, (progress) => {
+    const result = await runTranslationPipelineService(sourceText, config, (progress) => {
       setSectionStates(prev => {
         const current = prev[section.id] || {};
         const patch = {
@@ -226,9 +231,32 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       });
     }, { signal: controller.signal, onStreamChunk, previousContext: ctxToPass });
 
+    // ─── M1.5: Push newly extracted terms from unified output to glossary store ───
+    if (result.newTerms && result.newTerms.length > 0) {
+      const now = Date.now();
+      const newEntries = result.newTerms
+        .filter(t => t && t.termEN && t.termVI)
+        .map(t => ({
+          id: crypto.randomUUID(),
+          termEN: t.termEN,
+          termVI: t.termVI,
+          termVIAlts: [],
+          topic: getTopic(),
+          context: '',
+          notes: t.notes || '',
+          status: 'suggested',
+          usageCount: 1,
+          createdAt: now,
+          updatedAt: now,
+        }));
+      if (newEntries.length > 0) {
+        useGlossaryStore.getState().addEntries(newEntries);
+        setGlossaryNotice(prev => (prev || 0) + newEntries.length);
+      }
+    }
+
     // Store context for next section
     prevContextRef.current = {
-      originalTail: extractTail(sourceText),
       translatedTail: extractTail(result.translated),
     };
 
@@ -255,11 +283,6 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       provider: getProvider(),
     }).catch(() => {});
 
-    // Extract glossary terms in background
-    extractAndStoreTerms(sourceText, getTopic()).then(count => {
-      if (count > 0) setGlossaryNotice(prev => (prev || 0) + count);
-    });
-
     return result;
   }, [updateSectionState, createStreamHandler, saveTranslatedSection, fileMetadata]);
 
@@ -281,9 +304,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       const prevSection = sections[sectionIdx - 1];
       const prevState = sectionStates[prevSection.id];
       if (prevState?.translated) {
-        const prevSource = prevSection.text || prevSection.pages?.map(p => p.text).join('\n\n') || '';
         previousContext = {
-          originalTail: extractTail(prevSource),
           translatedTail: extractTail(prevState.translated),
         };
       }
@@ -360,9 +381,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       const currentState = sectionStates[section.id];
       if (currentState?.translated && currentState.status !== 'error') {
         // Section already done — still update context chain for continuity
-        const sourceText = section.text || section.pages?.map(p => p.text).join('\n\n') || '';
         prevContextRef.current = {
-          originalTail: extractTail(sourceText),
           translatedTail: extractTail(currentState.translated),
         };
         continue;
@@ -484,9 +503,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       const prevSection = sections[firstPendingIdx - 1];
       const prevState = sectionStates[prevSection.id];
       if (prevState?.translated) {
-        const prevSource = prevSection.text || prevSection.pages?.map(p => p.text).join('\n\n') || '';
         prevContextRef.current = {
-          originalTail: extractTail(prevSource),
           translatedTail: extractTail(prevState.translated),
         };
       }
