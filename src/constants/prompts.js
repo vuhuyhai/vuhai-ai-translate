@@ -20,7 +20,7 @@ export const AUDIENCES = [
   },
 ];
 
-const AUDIENCE_INSTRUCTIONS = {
+export const AUDIENCE_INSTRUCTIONS = {
   beginner: {
     translate: `The reader is a BEGINNER who is new to this field. You MUST:
 - Use simple, everyday Vietnamese words whenever possible
@@ -75,7 +75,7 @@ export const TOPICS = [
 ];
 
 // ─── Topic-specific expertise for translate prompt ───
-const TOPIC_EXPERTISE = {
+export const TOPIC_EXPERTISE = {
   marketing: {
     expertise: `advertising language, marketing terminology (branding, performance marketing, content marketing, creative strategy, digital marketing, social media marketing, SEO/SEM, conversion optimization, customer journey, funnel, KPIs)`,
     tone: `natural, persuasive yet professional tone suitable for Vietnamese marketing professionals and business readers`,
@@ -127,64 +127,6 @@ const TOPIC_EXPERTISE = {
     terms: `Translate most terms to Vietnamese. Keep only universally recognized English terms that have no natural Vietnamese equivalent.`,
   },
 };
-
-// ─── Shared format instructions ───
-const FORMAT_INSTRUCTIONS = `
-5. IMPORTANT: Format your output using Markdown for readability:
-   - Use ## for main headings, ### for sub-headings
-   - Use **bold** for emphasis
-   - Use bullet points (- or *) for lists
-   - Use numbered lists (1. 2. 3.) where appropriate
-   - Use > for quotes or highlighted text
-   - Add blank lines between paragraphs for readability
-   - Use --- for section separators where appropriate`;
-
-const NEGATIVE_CONSTRAINTS = `
-NEGATIVE CONSTRAINTS – DO NOT
-- Do not analyze the content.
-- Do not add comments or opinions.
-- Do not summarize.
-- Do not keep English text (except terms that cannot be translated).
-- Do not alter the structure unless necessary.
-- Do not use overly emotional or flowery language.`;
-
-const OUTPUT_FORMAT = `
-OUTPUT FORMAT
-- Output **only one complete Vietnamese translation**.
-- Use Markdown formatting for better readability.
-- Do not add any notes or explanations.`;
-
-// ─── Generate translate prompt for a topic + audience ───
-export function getTranslatePrompt(topicId = 'general', audienceId = 'beginner') {
-  const topic = TOPIC_EXPERTISE[topicId] || TOPIC_EXPERTISE.general;
-  const audience = AUDIENCE_INSTRUCTIONS[audienceId] || AUDIENCE_INSTRUCTIONS.beginner;
-
-  return `You are a **Professional Translation Expert** with over 15 years of experience, deeply knowledgeable in:
-- ${topic.expertise}
-- ${topic.tone}
-- preserving the original structure and formatting of documents
-You always translate **accurately – coherently – naturally**, while maintaining **90% of the original formatting**, with minor refinements allowed to improve readability.
----
-AUDIENCE PROFILE
-${audience.translate}
----
-Your task is to **translate the entire English text into Vietnamese** according to the following criteria:
-1. Translate accurately without adding, omitting, or interpreting beyond the original meaning.
-2. Use ${topic.tone}.
-3. Terminology: ${topic.terms}
-4. Preserve as much of the original formatting as possible, including:
-   - headings (H1, H2…)
-   - bullets and numbering
-   - tables
-   - italic and bold text
-   - line breaks and spacing
-   - special characters
-${FORMAT_INSTRUCTIONS}
----
-${NEGATIVE_CONSTRAINTS}
----
-${OUTPUT_FORMAT}`;
-}
 
 // ─── Generate review prompt for a topic + audience ───
 export function getReviewPrompt(topicId = 'general', audienceId = 'beginner') {

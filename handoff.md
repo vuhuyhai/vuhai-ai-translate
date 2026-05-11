@@ -330,6 +330,66 @@ Sau batch: nếu hết tất cả sections → status='complete', merge glossary
 
 ---
 
+## 7.5. M1 Refactor — Token Optimization (COMPLETE 2026-05-11)
+
+### Trạng thái
+- **Branch active:** `refactor/token-optimization`
+- **Latest commit:** xem `git log --oneline -1`
+- **Smoke test result:** PASS 7/7 — xem `SMOKE_TEST_M1.md`
+- **Token saving achieved:** -53.5% (150,459 → 69,987 trên baseline.pdf 3 sections)
+- **API calls reduction:** 12 → 3 (default mode no review)
+
+### Architecture changes
+1. **Pipeline mới:** `runTranslationPipeline` ở `agentPipeline.js:272` thay thế `runAgentPipeline` (cũ còn tồn tại line 147, sẽ xóa ở M2).
+   - 1 call default (translator only)
+   - `enableReview: true` → +1 call reviewer (optional)
+   - Return shape giữ `analysis: null` cho backward compat
+2. **Unified prompt:** `getUnifiedTranslatorPrompt` (English) ở `agentPrompts.js:109` output theo format separator:
+   ```
+   ---TRANSLATION---
+   <vietnamese markdown>
+   ---TERMS---
+   <JSON array>
+   ---END---
+   ```
+3. **Parse:** `parseStreamedOutput` + `findTranslationEnd` ở `agentPipeline.js:42, 92`.
+4. **Stream filter:** `createStreamHandler` ở `useTranslationPipeline.js:164` lọc bỏ phần TERMS khỏi UI khi streaming.
+5. **Glossary extraction:** không còn call API riêng. Terms được Gemini extract trong cùng output unified, push thẳng vào `glossaryStore` qua `addEntries` (xem `useTranslationPipeline.js:234-256`).
+6. **previousContext:** chỉ còn `translatedTail` (đã bỏ `originalTail` — tiết kiệm ~150 token/section). Build sites: `useTranslationPipeline.js:260, 308, 385, 507`.
+7. **DocumentViewerPage.handleRetranslate:** đã fix bug previousContext thiếu (audit E1).
+8. **Token logging:** `geminiApi.js:logTokenUsage` log `[GEMINI-TOKENS]` cho mọi call (fetch + stream), parse `usageMetadata.{prompt,candidates,total}TokenCount`.
+
+### Naming convention deviation
+Hook `useTranslationPipeline()` export 1 function named `runTranslationPipeline` (batch pipeline, public API). Service `runTranslationPipeline` ở agentPipeline.js trùng tên → import vào hook với alias `runTranslationPipelineService` để tránh shadow conflict. Search-replace cẩn thận khi đụng vào.
+
+### Files đã sửa (M1)
+- `src/services/geminiApi.js` — token logging
+- `src/services/agentPipeline.js` — parser + new pipeline
+- `src/constants/prompts.js` — export TOPIC_EXPERTISE, AUDIENCE_INSTRUCTIONS
+- `src/constants/agentPrompts.js` — 2 prompt mới
+- `src/hooks/useTranslationPipeline.js` — wire to new pipeline, drop originalTail + glossary call, push newTerms
+- `src/pages/DocumentViewerPage.jsx` — migrate + fix previousContext bug
+
+### Code chết còn nguyên (xóa ở M2)
+- `runAgentPipeline` ở `agentPipeline.js:147`
+- `getAnalystPrompt`, `getEditorPrompt`, `getQAPrompt` ở `agentPrompts.js`
+- `getTranslatePrompt` ở `prompts.js` (legacy duplicate)
+- `extractTermsFromSection`, `extractAndStoreTerms` helpers
+- ~95% của `modelConfig.js` (dead exports `AGENT_MODEL_MAP_*`, `MODEL_RPM`, `MODEL_RPD`, etc.)
+
+### Pre-existing bugs đã note (chưa fix)
+- `useTranslationPipeline.js:101+107` — `lastError` scope leak ngoài try-catch (no-undef + no-unused-vars). Fix ở M2 cleanup.
+
+### Next milestone — M2 (Section optimization + cleanup)
+1. SECTION_*_WORDS: 2000-3000 → 6000-10000 (target 8000)
+2. `generationConfig.temperature: 0.3` + dynamic maxOutputTokens
+3. **`thinkingConfig.thinkingBudget: 0`** cho translator (verified hiệu quả vì thinking chiếm 55% sau M1)
+4. Cleanup dead code (xem mục trên)
+5. Simplify `modelConfig.js` → `MODELS`, `getTranslatorModel`, `getReviewerModel`
+6. Fix pre-existing `lastError` bug
+
+---
+
 ## 8. Commands nhanh khi tiếp tục
 
 ```powershell

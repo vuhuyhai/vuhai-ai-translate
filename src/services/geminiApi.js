@@ -2,6 +2,46 @@ import { getGeminiApiUrl, getGeminiStreamUrl, MAX_OUTPUT_TOKENS } from '../const
 import { parseGeminiError } from './apiErrorParser';
 import useKeyStore from '../stores/keyStore';
 
+// ─── M2.2: Dynamic generation config ───
+
+// Estimate output tokens budget based on input length.
+// Vietnamese output ~1.3x English; buffer 1.2x for safety.
+function calculateMaxOutputTokens(userText) {
+  if (typeof userText !== 'string' || !userText) return 2048;
+  const inputChars = userText.length;
+  const estimated = Math.ceil((inputChars / 4) * 1.3 * 1.2);
+  return Math.min(Math.max(estimated, 2048), MAX_OUTPUT_TOKENS);
+}
+
+// Build generationConfig object with model-aware optimizations.
+// - Always: temperature 0.3 (translation needs determinism)
+// - Always: dynamic maxOutputTokens
+// - Flash family only: thinkingBudget=0 (saves ~55% tokens; Pro doesn't support disabling)
+function buildGenerationConfig(model, userText) {
+  const config = {
+    temperature: 0.3,
+    maxOutputTokens: calculateMaxOutputTokens(userText),
+  };
+  const m = (model || '').toLowerCase();
+  // gemini-2.5-flash and flash-lite support thinkingBudget=0
+  // gemini-2.5-pro does NOT (min 128); leave thinking on dynamic for Pro
+  if (m.includes('flash')) {
+    config.thinkingConfig = { thinkingBudget: 0 };
+  }
+  return config;
+}
+
+// ─── Token logging (M0.5 baseline) ───
+function logTokenUsage(model, usageMetadata, label = 'gemini') {
+  if (!usageMetadata) return;
+  const {
+    promptTokenCount: prompt = 0,
+    candidatesTokenCount: output = 0,
+    totalTokenCount: total = 0,
+  } = usageMetadata;
+  console.log(`[GEMINI-TOKENS] ${label} | model=${model} | prompt=${prompt} | output=${output} | total=${total}`);
+}
+
 export async function fetchGeminiCompletion(systemPrompt, userText, { signal, maxRetries = 3, model } = {}) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -15,7 +55,7 @@ export async function fetchGeminiCompletion(systemPrompt, userText, { signal, ma
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemPrompt }] },
           contents: [{ parts: [{ text: userText }] }],
-          generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS },
+          generationConfig: buildGenerationConfig(model, userText),
         }),
       });
     } catch (fetchError) {
@@ -33,6 +73,7 @@ export async function fetchGeminiCompletion(systemPrompt, userText, { signal, ma
         throw parseGeminiError(200, data);
       }
 
+      logTokenUsage(model, data.usageMetadata, 'fetch');
       useKeyStore.getState().incrementQuota();
       return text;
     }
@@ -83,7 +124,7 @@ export async function streamGeminiCompletion(systemPrompt, userText, { signal, o
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemPrompt }] },
           contents: [{ parts: [{ text: userText }] }],
-          generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS },
+          generationConfig: buildGenerationConfig(model, userText),
         }),
       });
     } catch (fetchError) {
@@ -96,6 +137,7 @@ export async function streamGeminiCompletion(systemPrompt, userText, { signal, o
       const decoder = new TextDecoder();
       let fullText = '';
       let buffer = '';
+      let finalUsageMetadata = null;
 
       try {
         while (true) {
@@ -120,6 +162,7 @@ export async function streamGeminiCompletion(systemPrompt, userText, { signal, o
                 fullText += chunk;
                 onChunk?.(chunk, fullText);
               }
+              if (data.usageMetadata) finalUsageMetadata = data.usageMetadata;
             } catch {
               // Skip malformed JSON chunks
             }
@@ -139,6 +182,7 @@ export async function streamGeminiCompletion(systemPrompt, userText, { signal, o
                   fullText += chunk;
                   onChunk?.(chunk, fullText);
                 }
+                if (data.usageMetadata) finalUsageMetadata = data.usageMetadata;
               } catch { /* skip */ }
             }
           }
@@ -154,6 +198,7 @@ export async function streamGeminiCompletion(systemPrompt, userText, { signal, o
         throw parseGeminiError(200, { candidates: [{ content: { parts: [{ text: '' }] } }] });
       }
 
+      logTokenUsage(model, finalUsageMetadata, 'stream');
       useKeyStore.getState().incrementQuota();
       return fullText;
     }

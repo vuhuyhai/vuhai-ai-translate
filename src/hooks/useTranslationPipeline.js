@@ -1,8 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { fetchAICompletion } from '../services/aiService';
-import { runAgentPipeline, extractTail } from '../services/agentPipeline';
-import { extractTermsFromSection } from '../services/glossaryService';
+import {
+  runTranslationPipeline as runTranslationPipelineService,
+  extractTail,
+  findTranslationEnd,
+} from '../services/agentPipeline.js';
 import { getReviewPrompt } from '../constants/prompts';
 import { getTopic, getAudience, getProvider } from '../constants/config';
 import useGlossaryStore from '../stores/glossaryStore';
@@ -19,14 +22,6 @@ const STOP_CODES = [API_ERROR_CODES.INVALID_KEY, API_ERROR_CODES.KEY_REVOKED, AP
 function buildPromptWithGlossary(basePrompt) {
   const glossaryPrompt = useGlossaryStore.getState().getGlossaryPrompt();
   return glossaryPrompt ? basePrompt + glossaryPrompt : basePrompt;
-}
-
-async function extractAndStoreTerms(sourceText, topic) {
-  try {
-    const terms = await extractTermsFromSection(sourceText, topic);
-    if (terms.length > 0) return useGlossaryStore.getState().addEntries(terms);
-  } catch { /* non-blocking */ }
-  return 0;
 }
 
 export function useTranslationPipeline(sections, fileMetadata = null) {
@@ -56,8 +51,8 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
     }
 
     // Retry up to 2 times
+    let lastError = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      let lastError;
       try {
         const totalWords = sections.reduce((sum, s) => {
           const text = s.text || s.pages?.map(p => p.text).join(' ') || '';
@@ -165,9 +160,25 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       if (now - last < 66) return;
       streamThrottleRef.current[sectionId] = now;
 
+      // ─── M1.3: Filter out TERMS section from streaming UI ───
+      // If output uses unified format with separators, only show text
+      // between ---TRANSLATION--- and ---TERMS---
+      let displayText = fullText;
+      const transStart = fullText.search(/---TRANSLATION---/i);
+      if (transStart !== -1) {
+        const contentStart = transStart + '---TRANSLATION---'.length;
+        const termsEnd = findTranslationEnd(fullText);
+        const contentEnd = termsEnd !== -1 ? termsEnd : fullText.length;
+        displayText = fullText.slice(contentStart, contentEnd).trimStart();
+      }
+      // If no TRANSLATION marker found, leave fullText as-is (legacy pipeline)
+
       setSectionStates(prev => ({
         ...prev,
-        [sectionId]: { ...prev[sectionId], streamingTranslated: fullText },
+        [sectionId]: {
+          ...prev[sectionId],
+          streamingTranslated: displayText,
+        },
       }));
     };
   }, []);
@@ -193,7 +204,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
     // Use explicit previousContext if provided, otherwise fall back to ref
     const ctxToPass = previousContext !== undefined ? previousContext : prevContextRef.current;
 
-    const result = await runAgentPipeline(sourceText, config, (progress) => {
+    const result = await runTranslationPipelineService(sourceText, config, (progress) => {
       setSectionStates(prev => {
         const current = prev[section.id] || {};
         const patch = {
@@ -206,9 +217,32 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       });
     }, { signal: controller.signal, onStreamChunk, previousContext: ctxToPass });
 
+    // ─── M1.5: Push newly extracted terms from unified output to glossary store ───
+    if (result.newTerms && result.newTerms.length > 0) {
+      const now = Date.now();
+      const newEntries = result.newTerms
+        .filter(t => t && t.termEN && t.termVI)
+        .map(t => ({
+          id: crypto.randomUUID(),
+          termEN: t.termEN,
+          termVI: t.termVI,
+          termVIAlts: [],
+          topic: getTopic(),
+          context: '',
+          notes: t.notes || '',
+          status: 'suggested',
+          usageCount: 1,
+          createdAt: now,
+          updatedAt: now,
+        }));
+      if (newEntries.length > 0) {
+        useGlossaryStore.getState().addEntries(newEntries);
+        setGlossaryNotice(prev => (prev || 0) + newEntries.length);
+      }
+    }
+
     // Store context for next section
     prevContextRef.current = {
-      originalTail: extractTail(sourceText),
       translatedTail: extractTail(result.translated),
     };
 
@@ -235,11 +269,6 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       provider: getProvider(),
     }).catch(() => {});
 
-    // Extract glossary terms in background
-    extractAndStoreTerms(sourceText, getTopic()).then(count => {
-      if (count > 0) setGlossaryNotice(prev => (prev || 0) + count);
-    });
-
     return result;
   }, [updateSectionState, createStreamHandler, saveTranslatedSection, fileMetadata]);
 
@@ -261,9 +290,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       const prevSection = sections[sectionIdx - 1];
       const prevState = sectionStates[prevSection.id];
       if (prevState?.translated) {
-        const prevSource = prevSection.text || prevSection.pages?.map(p => p.text).join('\n\n') || '';
         previousContext = {
-          originalTail: extractTail(prevSource),
           translatedTail: extractTail(prevState.translated),
         };
       }
@@ -340,9 +367,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       const currentState = sectionStates[section.id];
       if (currentState?.translated && currentState.status !== 'error') {
         // Section already done — still update context chain for continuity
-        const sourceText = section.text || section.pages?.map(p => p.text).join('\n\n') || '';
         prevContextRef.current = {
-          originalTail: extractTail(sourceText),
           translatedTail: extractTail(currentState.translated),
         };
         continue;
@@ -464,9 +489,7 @@ export function useTranslationPipeline(sections, fileMetadata = null) {
       const prevSection = sections[firstPendingIdx - 1];
       const prevState = sectionStates[prevSection.id];
       if (prevState?.translated) {
-        const prevSource = prevSection.text || prevSection.pages?.map(p => p.text).join('\n\n') || '';
         prevContextRef.current = {
-          originalTail: extractTail(prevSource),
           translatedTail: extractTail(prevState.translated),
         };
       }
