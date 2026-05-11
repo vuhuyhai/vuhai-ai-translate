@@ -20,7 +20,7 @@ export const AUDIENCES = [
   },
 ];
 
-const AUDIENCE_INSTRUCTIONS = {
+export const AUDIENCE_INSTRUCTIONS = {
   beginner: {
     translate: `The reader is a BEGINNER who is new to this field. You MUST:
 - Use simple, everyday Vietnamese words whenever possible
@@ -75,7 +75,7 @@ export const TOPICS = [
 ];
 
 // ─── Topic-specific expertise for translate prompt ───
-const TOPIC_EXPERTISE = {
+export const TOPIC_EXPERTISE = {
   marketing: {
     expertise: `advertising language, marketing terminology (branding, performance marketing, content marketing, creative strategy, digital marketing, social media marketing, SEO/SEM, conversion optimization, customer journey, funnel, KPIs)`,
     tone: `natural, persuasive yet professional tone suitable for Vietnamese marketing professionals and business readers`,
