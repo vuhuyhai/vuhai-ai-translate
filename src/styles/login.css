@@ -1,0 +1,267 @@
+/**
+ * VuHai AI Translate — Bento P1 override for LoginScreen
+ * M1.3 — public-facing first impression.
+ *
+ * Strategy: Override block. Same selectors as src/index.css lines
+ * 1320-1449. Loaded AFTER index.css via @import at END.
+ *
+ * Layout: 3-zone transactional Bento.
+ * - Brand zone: logo + eyebrow + hero headline + tagline
+ * - Login card: tabs + form + Google CTA (existing structure)
+ * - Stat strip (NEW): 3 micro-bento cards as social proof
+ *
+ * Vietnamese typography (§8): line-height 1.25+ on headline,
+ * no uppercase on Vietnamese text.
+ */
+
+/* ─── Page background (Bento warm cream) ───────────────── */
+.login-page {
+  background: var(--bento-bg-page);
+}
+
+/* ─── Brand zone ──────────────────────────────────────── */
+.login-logo {
+  margin-bottom: var(--bento-space-4);
+}
+
+.login-logo-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--bento-accent);
+  border-radius: var(--bento-radius);
+  color: #FFFFFF;
+  margin: 0 auto var(--bento-space-2);
+}
+
+.login-logo-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.login-eyebrow {
+  display: inline-block;
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  color: var(--bento-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--bento-space-1);
+}
+
+.login-app-name {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-h3);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.02em;
+  line-height: var(--bento-leading-tight);
+  word-break: keep-all;
+  margin: 0 0 var(--bento-space-1);
+}
+
+.login-tagline {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+}
+
+/* ─── Login card ──────────────────────────────────────── */
+.login-card {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  box-shadow: 0 8px 32px var(--bento-accent-glow),
+              0 2px 8px rgba(42, 37, 32, 0.04);
+  padding: var(--bento-space-4) var(--bento-space-4) var(--bento-space-3);
+  max-width: 420px;
+}
+
+/* ─── Tabs ────────────────────────────────────────────── */
+.login-tabs {
+  background: var(--bento-bg-card-hi);
+  border-radius: var(--bento-radius-sm);
+  padding: 4px;
+  margin-bottom: var(--bento-space-2);
+}
+
+.login-tab {
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  color: var(--bento-text-secondary);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.login-tab.active {
+  background: var(--bento-bg-card);
+  color: var(--bento-text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(42, 37, 32, 0.06);
+}
+
+/* ─── Form fields ─────────────────────────────────────── */
+.login-label {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  color: var(--bento-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.login-input {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-primary);
+  padding: 11px 12px;
+  transition: border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.login-input:focus {
+  border-color: var(--bento-accent);
+  background: var(--bento-bg-card);
+}
+
+.login-input::placeholder {
+  color: var(--bento-text-tertiary);
+}
+
+.login-eye-btn {
+  color: var(--bento-text-tertiary);
+  font-size: 16px;
+}
+
+.login-eye-btn:hover {
+  color: var(--bento-accent);
+}
+
+/* ─── Error ───────────────────────────────────────────── */
+.login-error {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+}
+
+/* ─── Submit button (primary CTA) ─────────────────────── */
+.login-submit {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body);
+  font-weight: 500;
+  padding: 12px 16px;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.login-submit:hover:not(:disabled) {
+  background: var(--bento-accent-hi);
+  border-color: var(--bento-accent-hi);
+}
+
+.login-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Divider ─────────────────────────────────────────── */
+.login-divider-line {
+  background: var(--bento-border);
+}
+
+.login-divider-text {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-tertiary);
+}
+
+/* ─── Google button ───────────────────────────────────── */
+.login-google-btn {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-primary);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body);
+  font-weight: 500;
+  padding: 11px 16px;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.login-google-btn:hover:not(:disabled) {
+  background: var(--bento-bg-card-hi);
+  border-color: var(--bento-border-hi);
+}
+
+.login-privacy {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-tertiary);
+}
+
+/* ─── Stat strip (NEW — 3 micro-bento cards) ──────────── */
+.login-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--bento-space-2);
+  width: 100%;
+  max-width: 420px;
+  margin-top: var(--bento-space-3);
+}
+
+.login-stat {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: var(--bento-space-2) var(--bento-space-1);
+  text-align: center;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.login-stat:hover {
+  background: var(--bento-bg-card-hi);
+  border-color: var(--bento-border-hi);
+}
+
+.login-stat-num {
+  font-family: var(--bento-font-display);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--bento-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.login-stat-label {
+  font-family: var(--bento-font-display);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--bento-text-secondary);
+  letter-spacing: 0.02em;
+  margin-top: var(--bento-space-1);
+}
+
+/* ─── Mobile (§9 — keep asymmetry) ────────────────────── */
+@media (max-width: 480px) {
+  .login-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .login-stat:last-child {
+    grid-column: span 2;
+  }
+  .login-card {
+    padding: var(--bento-space-3);
+  }
+}

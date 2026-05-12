@@ -8,6 +8,8 @@
 
 /* ─── M1.1: Bento tokens (coexist với tokens cũ bên dưới) ─── */
 @import './styles/tokens.css';
+@import './styles/header.css';
+@import './styles/login.css';
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
@@ -2626,5 +2628,3 @@ body {
   border: 1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer;
 }
 
-/* ─── M1.2: Bento override for Header + UserBadge ─── */
-@import './styles/header.css';

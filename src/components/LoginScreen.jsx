@@ -89,20 +89,20 @@ export function LoginScreen({ onLogin }) {
 
   return (
     <div className="login-page">
-      {/* Logo */}
+      {/* ─── Brand zone ─── */}
       <div className="login-logo">
         <div className="login-logo-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
           </svg>
         </div>
-        <h1 className="login-app-name">VuHai AI Translate</h1>
-        <p className="login-tagline">Dịch tài liệu kinh doanh tiếng Anh · Chuẩn xuất bản</p>
+        <span className="login-eyebrow">AI Translate</span>
+        <h1 className="login-app-name">Dịch tài liệu Anh → Việt</h1>
+        <p className="login-tagline">AI chuyên ngành · Chuẩn xuất bản</p>
       </div>
 
-      {/* Card */}
+      {/* ─── Login card ─── */}
       <div className="login-card">
-        {/* Tab switcher */}
         <div className="login-tabs">
           <button
             type="button"
@@ -120,7 +120,6 @@ export function LoginScreen({ onLogin }) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleEmailSubmit} className="login-form">
           {tab === 'register' && (
             <div className="login-field">
@@ -170,21 +169,19 @@ export function LoginScreen({ onLogin }) {
 
           {error && <p className="login-error">{error}</p>}
 
-          <button type="submit" disabled={isLoading} className="btn btn-primary-lg login-submit">
+          <button type="submit" disabled={isLoading} className="login-submit">
             {isLoading
               ? 'Đang xử lý...'
               : tab === 'register' ? 'Tạo tài khoản' : 'Đăng nhập'}
           </button>
         </form>
 
-        {/* Divider */}
         <div className="login-divider">
           <div className="login-divider-line" />
           <span className="login-divider-text">hoặc</span>
           <div className="login-divider-line" />
         </div>
 
-        {/* Google */}
         <button onClick={handleGoogle} disabled={isLoading} className="login-google-btn">
           <svg width="18" height="18" viewBox="0 0 18 18" style={{ flexShrink: 0 }}>
             <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
@@ -198,6 +195,22 @@ export function LoginScreen({ onLogin }) {
         <p className="login-privacy">
           API Key chỉ lưu trong trình duyệt · Không gửi lên server
         </p>
+      </div>
+
+      {/* ─── Stat strip (social proof) ─── */}
+      <div className="login-stats">
+        <div className="login-stat">
+          <div className="login-stat-num">10</div>
+          <div className="login-stat-label">Chuyên ngành</div>
+        </div>
+        <div className="login-stat">
+          <div className="login-stat-num">4</div>
+          <div className="login-stat-label">AI Agents</div>
+        </div>
+        <div className="login-stat">
+          <div className="login-stat-num">100%</div>
+          <div className="login-stat-label">Lưu local</div>
+        </div>
       </div>
     </div>
   );
