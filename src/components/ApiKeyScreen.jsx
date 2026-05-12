@@ -53,6 +53,7 @@ export function ApiKeyScreen({ onSubmit, initialApiKey }) {
   return (
     <div className="setup-page">
       <header className="setup-header">
+        <span className="setup-header-eyebrow">Bước 2 · API Key</span>
         <h1 className="setup-header-title">Nhập Gemini API Key</h1>
         <p className="setup-header-desc">
           Miễn phí · Không cần thẻ tín dụng · Bắt đầu ngay
@@ -149,7 +150,7 @@ export function ApiKeyScreen({ onSubmit, initialApiKey }) {
 
               {error && <div className="setup-error">{error}</div>}
 
-              <button type="submit" className="btn btn-primary-lg setup-submit" disabled={isDetecting || !canSubmit}>
+              <button type="submit" className="setup-submit" disabled={isDetecting || !canSubmit}>
                 {isDetecting ? (
                   <><span className="spinner spinner-inverse setup-spinner" /> Đang xác minh...</>
                 ) : (

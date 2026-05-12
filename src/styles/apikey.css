@@ -1,0 +1,376 @@
+/**
+ * VuHai AI Translate — Bento P1 override for ApiKeyScreen (layer 2 auth)
+ * M1.4 — internal-but-required setup page.
+ *
+ * Layout: Bento Pattern A modified (skill §6.1)
+ * - Brand zone top: eyebrow + hero headline + tagline
+ * - 2-col asymmetric 7+5 (skill §1.4 asymmetric)
+ *   Left 7 cols: Form Hero card (API key, topic grid, audience, submit)
+ *   Right 5 cols: Benefits stat-strip card + security note
+ * - Mobile <768px: right col hidden (legacy pattern kept)
+ *
+ * Exceptions documented:
+ * - setup-input keeps mono font (API keys are alphanumeric, mono is signal)
+ * - .has-success uses subtle green (semantic exception, like avatar 50%)
+ */
+
+/* ─── Page background ─── */
+.setup-page {
+  background: var(--bento-bg-page);
+  padding: var(--bento-space-3) clamp(16px, 5vw, 48px) var(--bento-space-5);
+}
+
+/* ─── Brand zone ─── */
+.setup-header {
+  max-width: 720px;
+  margin: 0 auto var(--bento-space-4);
+}
+
+.setup-header-eyebrow {
+  display: inline-block;
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  color: var(--bento-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--bento-space-1);
+}
+
+.setup-header-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-h3);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.02em;
+  line-height: var(--bento-leading-tight);
+  word-break: keep-all;
+  margin: 0 0 var(--bento-space-1);
+}
+
+.setup-header-desc {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+}
+
+/* ─── 2-col asymmetric grid (Bento §1.4) ─── */
+.setup-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  grid-template-columns: 7fr 5fr;
+  gap: var(--bento-space-3);
+}
+
+/* ─── Cards ─── */
+.setup-card {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: var(--bento-space-4);
+  box-shadow: 0 2px 12px rgba(42, 37, 32, 0.04);
+}
+
+/* ─── Form labels ─── */
+.setup-field {
+  margin-bottom: var(--bento-space-3);
+}
+
+.setup-label {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  color: var(--bento-text-primary);
+  margin-bottom: var(--bento-space-1);
+  letter-spacing: 0.02em;
+}
+
+/* ─── API Key input (mono font kept — semantic exception) ─── */
+.setup-input {
+  font-family: var(--bento-font-mono);
+  font-size: var(--bento-text-small);
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-primary);
+  padding: 12px 48px 12px 14px;
+  transition: border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.setup-input:focus {
+  border-color: var(--bento-accent);
+  background: var(--bento-bg-card);
+}
+
+.setup-input.has-error {
+  border-color: var(--bento-accent);
+  background: var(--bento-accent-glow);
+}
+
+.setup-input.has-success {
+  border-color: #5C9F70;
+}
+
+.setup-input-toggle {
+  color: var(--bento-text-tertiary);
+}
+
+.setup-input-toggle:hover {
+  color: var(--bento-accent);
+}
+
+/* ─── Topic grid (10 buttons, 2-col) ─── */
+.setup-topic-grid {
+  gap: 8px;
+}
+
+.setup-topic-btn {
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-secondary);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  padding: 10px 12px;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.setup-topic-btn:hover:not(.active) {
+  border-color: var(--bento-border-hi);
+  background: var(--bento-bg-card);
+}
+
+.setup-topic-btn.active {
+  border-color: var(--bento-accent);
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+  font-weight: 600;
+}
+
+.setup-topic-icon {
+  font-size: 18px;
+}
+
+/* ─── Audience list ─── */
+.setup-audience-btn {
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-secondary);
+  font-family: var(--bento-font-body);
+  padding: var(--bento-space-2) 14px;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.setup-audience-btn:hover:not(.active) {
+  border-color: var(--bento-border-hi);
+  background: var(--bento-bg-card);
+}
+
+.setup-audience-btn.active {
+  border-color: var(--bento-accent);
+  background: var(--bento-accent-glow);
+}
+
+.setup-audience-icon {
+  font-size: 22px;
+}
+
+.setup-audience-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  color: var(--bento-text-primary);
+}
+
+.setup-audience-title.active {
+  color: var(--bento-accent-hi);
+  font-weight: 600;
+}
+
+.setup-audience-desc {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+}
+
+/* ─── Error message ─── */
+.setup-error {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  padding: 10px 14px;
+}
+
+/* ─── Link ─── */
+.setup-link {
+  color: var(--bento-accent);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.setup-link:hover {
+  color: var(--bento-accent-hi);
+  text-decoration: underline;
+}
+
+/* ─── Submit button (primary CTA — self-contained, no btn shared class) ─── */
+.setup-submit {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body);
+  font-weight: 500;
+  padding: 14px 24px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.setup-submit:hover:not(:disabled) {
+  background: var(--bento-accent-hi);
+  border-color: var(--bento-accent-hi);
+}
+
+.setup-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Right col: Benefits ─── */
+.setup-section-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body-lg);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--bento-space-3);
+}
+
+.setup-benefits-list {
+  gap: var(--bento-space-2);
+}
+
+.setup-benefit-item {
+  gap: var(--bento-space-2);
+  padding: var(--bento-space-2);
+  background: var(--bento-bg-card-hi);
+  border-radius: var(--bento-radius-sm);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.setup-benefit-item:hover {
+  background: var(--bento-bg-card);
+}
+
+.setup-benefit-icon {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  font-size: 22px;
+}
+
+.setup-benefit-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+}
+
+.setup-benefit-desc {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+  line-height: var(--bento-leading-normal);
+}
+
+/* ─── Security note ─── */
+.setup-security-note {
+  margin-top: var(--bento-space-3);
+  padding: 14px 18px;
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-secondary);
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+}
+
+/* ─── Inline API Key Guide (collapsible) ─── */
+.apikey-guide {
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  padding: var(--bento-space-2) 14px;
+  gap: var(--bento-space-1);
+}
+
+.apikey-guide-step {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+}
+
+.apikey-guide-num {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  font-family: var(--bento-font-display);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.apikey-guide-note {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+  font-weight: 500;
+}
+
+/* ─── Key status states ─── */
+.setup-key-status {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+}
+
+.setup-key-hint {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+}
+
+.key-status-success { color: #5C9F70; }
+.key-status-error { color: var(--bento-accent); }
+.key-status-detecting { color: var(--bento-text-tertiary); }
+
+/* ─── Mobile (§9 — keep asymmetry on topic grid) ─── */
+@media (max-width: 767px) {
+  .setup-page {
+    padding: var(--bento-space-2) var(--bento-space-2) var(--bento-space-4);
+  }
+  .setup-header {
+    margin-bottom: var(--bento-space-3);
+  }
+  .setup-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .setup-card {
+    padding: var(--bento-space-3);
+  }
+  .setup-topic-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
