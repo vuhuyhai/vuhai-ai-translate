@@ -3,11 +3,10 @@ import { toast } from 'sonner';
 import { masterGlossaryService } from '../../services/masterGlossaryService';
 import { activityService } from '../../services/activityService';
 import useGlossaryStore from '../../stores/glossaryStore';
-import { DOMAINS, getDomainById, groupByDomain, classifyDomain } from '../../constants/domains';
-import { tabContent } from './styles';
+import { DOMAINS, groupByDomain, classifyDomain } from '../../constants/domains';
 
 export function GlossaryTab() {
-  const [allTerms, setAllTerms] = useState([]); // unfiltered
+  const [allTerms, setAllTerms] = useState([]);
   const [terms, setTerms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [domainFilter, setDomainFilter] = useState('');
@@ -21,13 +20,11 @@ export function GlossaryTab() {
   const loadTerms = async () => {
     setLoading(true);
     let data = await masterGlossaryService.getAll({});
-    // Auto-classify domain for terms that don't have one
     data = data.map(t => ({
       ...t,
       domain: t.domain || classifyDomain(t.termEN, t.termVI),
     }));
     setAllTerms(data);
-    // Apply filters
     let filtered = data;
     if (domainFilter) filtered = filtered.filter(t => t.domain === domainFilter);
     if (docFilter) filtered = filtered.filter(t => (t.sourceDocumentTitle || 'Không rõ nguồn') === docFilter);
@@ -43,7 +40,6 @@ export function GlossaryTab() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadTerms(); }, [domainFilter, docFilter, search]);
 
-  // Build unique document sources list from all terms
   const documentSources = [...new Set(allTerms.map(t => t.sourceDocumentTitle || 'Không rõ nguồn'))].sort();
   const docCounts = {};
   for (const t of allTerms) {
@@ -51,7 +47,6 @@ export function GlossaryTab() {
     docCounts[src] = (docCounts[src] || 0) + 1;
   }
 
-  // Auto-sync local → Firestore on first open
   const [autoSynced, setAutoSynced] = useState(false);
   useEffect(() => {
     if (autoSynced || loading || isMerging) return;
@@ -69,9 +64,11 @@ export function GlossaryTab() {
     setEditingId(null);
   };
 
-  const handleDelete = async (id) => {
-    await masterGlossaryService.deleteTerm(id);
-    setTerms(t => t.filter(x => x.id !== id));
+  const handleDeleteWithConfirm = async (term) => {
+    const ok = window.confirm(`Xoá thuật ngữ "${term.termEN}"?`);
+    if (!ok) return;
+    await masterGlossaryService.deleteTerm(term.id);
+    setTerms(t => t.filter(x => x.id !== term.id));
   };
 
   const handleMergeFromSession = async () => {
@@ -105,79 +102,99 @@ export function GlossaryTab() {
   }
 
   return (
-    <div style={tabContent}>
-      {/* Header */}
-      <div className="gt-header">
-        <div>
-          <h2 className="gt-title">Bảng thuật ngữ</h2>
-          <p className="gt-subtitle">
+    <div className="bento-dash-tab">
+      <div className="bento-gloss-header">
+        <div className="bento-gloss-header-text">
+          <h2 className="bento-dash-tab-title">Bảng thuật ngữ</h2>
+          <p className="bento-gloss-subtitle">
             {terms.length} thuật ngữ · {grouped.length} chuyên ngành
             {docFilter && <> · từ <strong>{docFilter.replace('.pdf', '')}</strong></>}
             {documentSources.length > 0 && !docFilter && <> · {documentSources.length} tài liệu</>}
           </p>
         </div>
-        <div className="gt-actions">
-          <button onClick={handleMergeFromSession} disabled={isMerging} className="btn btn-ghost">
+        <div className="bento-gloss-header-actions">
+          <button
+            type="button"
+            className="bento-gloss-btn"
+            onClick={handleMergeFromSession}
+            disabled={isMerging}
+          >
             {isMerging ? 'Đang sync...' : '↑ Sync từ phiên dịch'}
           </button>
-          <button onClick={() => masterGlossaryService.exportCSV(terms)} className="btn btn-ghost">
+          <button
+            type="button"
+            className="bento-gloss-btn"
+            onClick={() => masterGlossaryService.exportCSV(terms)}
+          >
             ↓ Xuất CSV
           </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="gt-filters">
-        <div className="gt-search-wrap">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <div className="bento-gloss-filters">
+        <div className="bento-gloss-search-wrap">
           <input
             type="text"
+            className="bento-gloss-search"
             placeholder="Tìm thuật ngữ..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="gt-search-input"
+            aria-label="Tìm thuật ngữ"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="gt-search-clear">×</button>
+            <button
+              type="button"
+              className="bento-gloss-search-clear"
+              onClick={() => setSearch('')}
+              aria-label="Xoá tìm kiếm"
+            >
+              ✕
+            </button>
           )}
         </div>
-        <div className="gt-domain-chips">
+
+        <div className="bento-gloss-chips">
           <button
-            className={`gt-chip ${!domainFilter ? 'active' : ''}`}
+            type="button"
+            className={`bento-gloss-chip${!domainFilter ? ' active' : ''}`}
             onClick={() => setDomainFilter('')}
+            aria-pressed={!domainFilter}
           >
             Tất cả
           </button>
           {DOMAINS.filter(d => d.id !== 'general' && domainCounts[d.id]).map(d => (
             <button
               key={d.id}
-              className={`gt-chip ${domainFilter === d.id ? 'active' : ''}`}
+              type="button"
+              className={`bento-gloss-chip${domainFilter === d.id ? ' active' : ''}`}
               onClick={() => setDomainFilter(domainFilter === d.id ? '' : d.id)}
-              style={domainFilter === d.id ? { '--chip-color': d.color } : {}}
+              aria-pressed={domainFilter === d.id}
             >
-              {d.icon} {d.label}
-              <span className="gt-chip-count">{domainCounts[d.id] || 0}</span>
+              <span aria-hidden="true">{d.icon}</span>
+              {d.label}
+              <span className="bento-gloss-chip-count">{domainCounts[d.id] || 0}</span>
             </button>
           ))}
           {domainCounts['general'] > 0 && (
             <button
-              className={`gt-chip ${domainFilter === 'general' ? 'active' : ''}`}
+              type="button"
+              className={`bento-gloss-chip${domainFilter === 'general' ? ' active' : ''}`}
               onClick={() => setDomainFilter(domainFilter === 'general' ? '' : 'general')}
+              aria-pressed={domainFilter === 'general'}
             >
               General
-              <span className="gt-chip-count">{domainCounts['general']}</span>
+              <span className="bento-gloss-chip-count">{domainCounts['general']}</span>
             </button>
           )}
         </div>
 
-        {/* Document source filter */}
         {documentSources.length > 1 && (
-          <div className="gt-doc-filter">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+          <div className="bento-gloss-doc-filter">
             <select
               value={docFilter}
               onChange={e => setDocFilter(e.target.value)}
-              className="gt-doc-select"
+              className="bento-gloss-doc-select"
+              aria-label="Lọc theo tài liệu nguồn"
             >
               <option value="">Tất cả tài liệu ({allTerms.length})</option>
               {documentSources.map(src => (
@@ -185,94 +202,148 @@ export function GlossaryTab() {
               ))}
             </select>
             {docFilter && (
-              <button onClick={() => setDocFilter('')} className="gt-search-clear" style={{ position: 'static' }}>×</button>
+              <button
+                type="button"
+                className="bento-gloss-search-clear"
+                onClick={() => setDocFilter('')}
+                aria-label="Xoá lọc tài liệu"
+                style={{ position: 'static', transform: 'none' }}
+              >
+                ✕
+              </button>
             )}
           </div>
         )}
       </div>
 
-      {/* Content */}
       {loading ? (
-        <div className="gt-loading">
+        <div>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="shimmer" style={{ height: 40, borderRadius: 'var(--radius-sm)', marginBottom: 6 }} />
+            <div key={i} className="bento-dash-shimmer" style={{ height: 64, marginBottom: 10, borderRadius: 16 }} />
           ))}
         </div>
       ) : terms.length === 0 ? (
-        <div className="gt-empty">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <div className="bento-gloss-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
           <p>Chưa có thuật ngữ nào.</p>
-          <p className="gt-empty-sub">Dịch tài liệu để bắt đầu xây dựng bảng thuật ngữ.</p>
+          <p className="bento-gloss-empty-sub">Dịch tài liệu để bắt đầu xây dựng bảng thuật ngữ.</p>
         </div>
       ) : (
-        <div className="gt-groups">
+        <div className="bento-gloss-groups">
           {grouped.map(({ domain, terms: groupTerms }) => {
             const isCollapsed = collapsedGroups[domain.id];
             return (
-              <div key={domain.id} className="gt-group">
-                <button className="gt-group-header" onClick={() => toggleGroup(domain.id)}>
-                  <div className="gt-group-left">
-                    <span className="gt-group-icon" style={{ background: domain.color + '18', color: domain.color }}>
+              <div key={domain.id} className="bento-gloss-group">
+                <button
+                  type="button"
+                  className="bento-gloss-group-header"
+                  onClick={() => toggleGroup(domain.id)}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`bento-gloss-table-${domain.id}`}
+                >
+                  <div className="bento-gloss-group-left">
+                    <span
+                      className="bento-gloss-group-icon"
+                      style={{ background: `${domain.color}18`, color: domain.color }}
+                      aria-hidden="true"
+                    >
                       {domain.icon}
                     </span>
-                    <span className="gt-group-label">{domain.label}</span>
-                    <span className="gt-group-count">{groupTerms.length}</span>
+                    <span className="bento-gloss-group-label">{domain.label}</span>
                   </div>
+                  <span className="bento-gloss-group-count">{groupTerms.length}</span>
                   <svg
-                    width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                    style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}
+                    className="bento-gloss-group-chevron"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
+                    aria-hidden="true"
                   >
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
 
                 {!isCollapsed && (
-                  <div className="gt-table">
-                    <div className="gt-table-head">
-                      <div className="gt-col-en">English</div>
-                      <div className="gt-col-vi">Tiếng Việt</div>
-                      <div className="gt-col-actions"></div>
+                  <div
+                    className="bento-gloss-table"
+                    id={`bento-gloss-table-${domain.id}`}
+                  >
+                    <div className="bento-gloss-table-head">
+                      <div>English</div>
+                      <div>Tiếng Việt</div>
+                      <div></div>
                     </div>
                     {groupTerms.map(term => (
-                      <div key={term.id} className="gt-row">
-                        <div className="gt-col-en">
-                          <span className="gt-term-en">{term.termEN}</span>
+                      <div key={term.id} className="bento-gloss-row">
+                        <div>
+                          <p className="bento-gloss-term-en">{term.termEN}</p>
                           {term.sourceDocumentTitle && !docFilter && (
-                            <span className="gt-term-source">{term.sourceDocumentTitle.replace('.pdf', '')}</span>
+                            <p className="bento-gloss-term-source">
+                              {term.sourceDocumentTitle.replace('.pdf', '')}
+                            </p>
                           )}
                         </div>
-                        <div className="gt-col-vi">
+                        <div>
                           {editingId === term.id ? (
-                            <div className="gt-edit-row">
+                            <div className="bento-gloss-edit-row">
                               <input
+                                type="text"
+                                className="bento-gloss-edit-input"
                                 value={editValue.termVI || ''}
                                 onChange={e => setEditValue(v => ({ ...v, termVI: e.target.value }))}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') handleSaveEdit();
+                                  if (e.key === 'Escape') setEditingId(null);
+                                }}
                                 autoFocus
-                                className="gt-edit-input"
-                                onKeyDown={e => { if (e.key === 'Enter') handleSaveEdit(); if (e.key === 'Escape') setEditingId(null); }}
+                                aria-label="Sửa nghĩa tiếng Việt"
                               />
-                              <button onClick={handleSaveEdit} className="gt-btn-save">Lưu</button>
-                              <button onClick={() => setEditingId(null)} className="gt-btn-cancel">Hủy</button>
+                              <button type="button" className="bento-gloss-edit-save" onClick={handleSaveEdit}>
+                                Lưu
+                              </button>
+                              <button
+                                type="button"
+                                className="bento-gloss-edit-cancel"
+                                onClick={() => setEditingId(null)}
+                              >
+                                Hủy
+                              </button>
                             </div>
                           ) : (
-                            <span className="gt-term-vi">{term.termVI}</span>
+                            <p className="bento-gloss-term-vi">{term.termVI}</p>
                           )}
                         </div>
-                        <div className="gt-col-actions">
+                        <div className="bento-gloss-actions">
                           {editingId !== term.id && (
                             <>
                               <button
+                                type="button"
+                                className="bento-gloss-action-btn"
                                 onClick={() => { setEditingId(term.id); setEditValue({ termVI: term.termVI }); }}
-                                className="gt-action-btn" title="Sửa"
+                                aria-label={`Sửa "${term.termEN}"`}
                               >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                </svg>
                               </button>
                               <button
-                                onClick={() => handleDelete(term.id)}
-                                className="gt-action-btn gt-action-delete" title="Xóa"
+                                type="button"
+                                className="bento-gloss-action-btn delete"
+                                onClick={() => handleDeleteWithConfirm(term)}
+                                aria-label={`Xoá "${term.termEN}"`}
                               >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                  <path d="M3 6h18" />
+                                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                </svg>
                               </button>
                             </>
                           )}
