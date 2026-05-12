@@ -27,7 +27,7 @@ export const QuotaBanner = React.memo(function QuotaBanner({
             </div>
           </div>
           <div className="quota-banner-actions">
-            <button className="btn btn-primary quota-banner-btn" onClick={() => setShowQuotaUpgrade(true)}>
+            <button className="quota-banner-btn" onClick={() => setShowQuotaUpgrade(true)}>
               Nâng cấp Paid Key — dịch ngay
             </button>
           </div>

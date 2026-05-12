@@ -1,0 +1,318 @@
+/**
+ * VuHai AI Translate — Bento P1 override for workspace stage=idle
+ * M1.5b — 4 components: PDF/URL switcher, UrlInputZone, QuickGuide, QuotaBanner.
+ *
+ * Strategy: 1 file gathers all idle-stage chrome to keep diff cohesive
+ * (sister to upload-zone.css). M1.16 cleanup splits if needed.
+ *
+ * Documented exceptions:
+ * - QuotaBanner uses cinnamon-glow for warning (was yellow). Status states
+ *   are transient (resettable each day), not permanent semantic. Keeps
+ *   §3.1 "1 accent only" rule. Critical level uses accent-hi for emphasis.
+ * - QuickGuide step circles keep 50% radius (semantic: numbered steps are
+ *   circular by convention, same exception as avatar).
+ * - UrlInputZone uses dashed border like UploadZone (drop-zone family).
+ */
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* PDF / URL Switcher (Bento pill-tabs, mirror .login-tabs pattern) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.input-mode-tabs {
+  background: var(--bento-bg-card-hi);
+  border-radius: var(--bento-radius-sm);
+  padding: 4px;
+  max-width: 280px;
+  margin-bottom: var(--bento-space-2);
+}
+
+.input-mode-tab {
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  color: var(--bento-text-secondary);
+  padding: 8px 0;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.input-mode-tab:hover:not(.active) {
+  color: var(--bento-text-primary);
+}
+
+.input-mode-tab.active {
+  background: var(--bento-bg-card);
+  color: var(--bento-accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(42, 37, 32, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* UrlInputZone (sister to UploadZone — dashed drop family)        */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.url-input-zone {
+  background: var(--bento-bg-card);
+  border: 1.5px dashed var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: var(--bento-space-4) var(--bento-space-3);
+  max-width: 720px;
+  transition: border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.url-input-zone:hover {
+  background: var(--bento-bg-card-hi);
+  border-color: var(--bento-accent);
+}
+
+.url-input-icon {
+  font-size: 36px;
+  margin-bottom: var(--bento-space-1);
+}
+
+.url-input-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body-lg);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+.url-input-sub {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+  margin: 0 0 var(--bento-space-2);
+}
+
+.url-input-row {
+  gap: var(--bento-space-1);
+}
+
+.url-input-field {
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-mono);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-primary);
+  padding: 11px 14px;
+  transition: border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.url-input-field:focus {
+  border-color: var(--bento-accent);
+  background: var(--bento-bg-card);
+}
+
+.url-input-field.error {
+  border-color: var(--bento-accent);
+  background: var(--bento-accent-glow);
+}
+
+.url-input-btn {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  padding: 11px 18px;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.url-input-btn:hover:not(:disabled) {
+  background: var(--bento-accent-hi);
+  border-color: var(--bento-accent-hi);
+}
+
+.url-input-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.url-input-loading {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-secondary);
+  margin-top: var(--bento-space-1);
+}
+
+.url-input-error {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-accent-hi);
+}
+
+.url-input-note {
+  font-family: var(--bento-font-body);
+  font-size: 11px;
+  color: var(--bento-text-tertiary);
+  margin-top: var(--bento-space-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* QuickGuide (Bento info banner with 4 numbered steps)            */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.quick-guide {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: 18px 48px 18px 24px;
+  margin-bottom: var(--bento-space-3);
+  box-shadow: 0 1px 4px rgba(42, 37, 32, 0.03);
+}
+
+.qg-content {
+  gap: var(--bento-space-4);
+}
+
+.qg-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body-lg);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.01em;
+  line-height: var(--bento-leading-tight);
+  margin: 0 0 4px;
+}
+
+.qg-desc {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+  line-height: var(--bento-leading-normal);
+}
+
+.qg-step-num {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  font-family: var(--bento-font-display);
+  font-size: 11px;
+  font-weight: 600;
+  /* radius 50% kept — numbered circles by convention (skill §10 exception) */
+}
+
+.qg-step-text {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  color: var(--bento-text-primary);
+  letter-spacing: 0.02em;
+}
+
+.qg-step-line {
+  background: var(--bento-border);
+}
+
+.qg-dismiss {
+  background: transparent;
+  color: var(--bento-text-tertiary);
+  border-radius: var(--bento-radius-sm);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.qg-dismiss:hover {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* QuotaBanner (2 levels: warning + critical — both cinnamon)      */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.quota-banner {
+  border-radius: var(--bento-radius);
+  margin-bottom: var(--bento-space-2);
+  font-family: var(--bento-font-body);
+}
+
+/* Level 2: Warning 80-94 percent — soft cinnamon-glow */
+.quota-warning {
+  background: var(--bento-accent-glow);
+  border: 1px solid var(--bento-border-hi);
+  padding: 12px 18px;
+  font-size: var(--bento-text-small);
+  color: var(--bento-accent-hi);
+}
+
+/* Level 3: Critical 95 percent+ — strong cinnamon */
+.quota-critical {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-accent);
+  padding: 18px 22px;
+  box-shadow: 0 4px 16px var(--bento-accent-glow);
+}
+
+.quota-banner-icon {
+  font-size: 20px;
+}
+
+.quota-banner-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body);
+  font-weight: 600;
+  color: var(--bento-accent-hi);
+  margin: 0 0 4px;
+}
+
+.quota-banner-desc {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+  line-height: var(--bento-leading-normal);
+  margin: 0;
+}
+
+.quota-banner-text {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-accent-hi);
+}
+
+.quota-inline-link {
+  background: transparent;
+  color: var(--bento-accent);
+  font-family: var(--bento-font-display);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.quota-inline-link:hover {
+  color: var(--bento-accent-hi);
+}
+
+/* Critical CTA button (self-contained, no btn shared class) */
+.quota-banner-btn {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small) !important;
+  font-weight: 500;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.quota-banner-btn:hover {
+  background: var(--bento-accent-hi);
+  border-color: var(--bento-accent-hi);
+}
+
+.quota-dismiss {
+  color: var(--bento-text-tertiary);
+  transition: color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.quota-dismiss:hover {
+  color: var(--bento-accent);
+}
