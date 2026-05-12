@@ -2,11 +2,11 @@ import React, { useRef, useState, useCallback } from 'react';
 
 const UploadIcon = ({ isDragging }) => (
   <svg className={`upload-svg-icon ${isDragging ? 'bouncing' : ''}`} width="64" height="64" viewBox="0 0 64 64" fill="none">
-    <rect x="8" y="12" width="48" height="44" rx="6" fill="var(--color-primary-light)" stroke="var(--color-primary)" strokeWidth="2" />
-    <path d="M24 36l8-8 8 8" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M32 28v18" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" />
-    <rect x="18" y="8" width="28" height="8" rx="3" fill="var(--color-primary)" opacity="0.15" />
-    <text x="32" y="14.5" textAnchor="middle" fill="var(--color-primary)" fontSize="7" fontWeight="700" fontFamily="var(--font-sans)">PDF</text>
+    <rect x="8" y="12" width="48" height="44" rx="6" fill="var(--bento-accent-glow)" stroke="var(--bento-accent)" strokeWidth="2" />
+    <path d="M24 36l8-8 8 8" stroke="var(--bento-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M32 28v18" stroke="var(--bento-accent)" strokeWidth="2.5" strokeLinecap="round" />
+    <rect x="18" y="8" width="28" height="8" rx="3" fill="var(--bento-accent)" opacity="0.15" />
+    <text x="32" y="14.5" textAnchor="middle" fill="var(--bento-accent)" fontSize="7" fontWeight="700" fontFamily="var(--font-sans)">PDF</text>
   </svg>
 );
 

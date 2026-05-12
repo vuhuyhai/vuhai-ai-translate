@@ -1,0 +1,117 @@
+/**
+ * VuHai AI Translate — Bento P1 override for UploadZone (workspace hero)
+ * M1.5a — primary action card, dashed drop zone with multi-state interactions.
+ *
+ * States (4):
+ * - idle:           bg-card, dashed border default
+ * - hover:          bg-card-hi, dashed border cinnamon (2 props per skill §3.4)
+ * - focus-visible:  outline ring cinnamon (a11y)
+ * - dragging:       SOLID border cinnamon + bg cinnamon-glow + 3px ring
+ *
+ * Exceptions documented:
+ * - Dashed border kept (drop-zone visual signal, §3.7 doesn't ban)
+ * - Dragging uses 3 transition properties (vs §3.4 max 2) — drop indicator
+ *   needs visual punch for clarity; this is intentional design exception
+ */
+
+/* ─── Root zone ─── */
+.upload-zone {
+  background: var(--bento-bg-card);
+  border: 1.5px dashed var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: 48px 40px 40px;
+  margin-top: var(--bento-space-3);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.upload-zone:hover {
+  background: var(--bento-bg-card-hi);
+  border-color: var(--bento-accent);
+}
+
+.upload-zone:focus-visible {
+  outline: 2px solid var(--bento-accent);
+  outline-offset: 3px;
+}
+
+.upload-zone.dragging {
+  background: var(--bento-accent-glow);
+  border-color: var(--bento-accent);
+  border-style: solid;
+  box-shadow: 0 0 0 3px var(--bento-accent-glow);
+}
+
+/* ─── Glow effect (decorative radial gradient on hover/dragging) ─── */
+.upload-zone-glow {
+  background: radial-gradient(ellipse at center, var(--bento-accent-glow) 0%, transparent 70%);
+}
+
+/* ─── SVG icon ─── */
+.upload-svg-icon {
+  margin-bottom: var(--bento-space-2);
+}
+
+/* ─── Title (hero text, skill §5.1 hierarchy) ─── */
+.upload-zone-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-h3);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.02em;
+  line-height: var(--bento-leading-tight);
+  word-break: keep-all;
+  margin-bottom: var(--bento-space-1);
+}
+
+/* ─── Subtitle ─── */
+.upload-zone-subtitle {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+  margin-bottom: var(--bento-space-3);
+}
+
+/* ─── Inline link "click để chọn file" ─── */
+.upload-zone-link {
+  color: var(--bento-accent);
+  font-weight: 500;
+  border-bottom: 1px solid var(--bento-accent-glow);
+}
+
+.upload-zone-link:hover {
+  border-bottom-color: var(--bento-accent);
+}
+
+/* ─── Feature pills (3 trust badges) ─── */
+.upload-feature-pills {
+  gap: var(--bento-space-1);
+  margin-bottom: var(--bento-space-2);
+}
+
+.upload-feature-pill {
+  background: var(--bento-bg-card-hi);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  color: var(--bento-text-secondary);
+  padding: 4px 12px;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.upload-zone:hover .upload-feature-pill {
+  background: var(--bento-accent-glow);
+  border-color: var(--bento-accent);
+  color: var(--bento-accent-hi);
+}
+
+/* ─── Footer hint ─── */
+.upload-zone-hint {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-tertiary);
+}
