@@ -4,7 +4,7 @@ const SHIMMER_WIDTHS = ['100%', '90%', '75%', '85%', '60%', '95%', '70%'];
 
 export const ShimmerLoader = React.memo(function ShimmerLoader({ lineCount = 5, showPageLabel = false }) {
   return (
-    <div style={{ opacity: 0.8 }}>
+    <div className="shimmer-wrapper">
       {showPageLabel && (
         <div className="shimmer" style={{ height: 12, width: 120, marginBottom: 16 }} />
       )}

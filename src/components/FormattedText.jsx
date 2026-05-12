@@ -7,12 +7,7 @@ export const FormattedText = React.memo(function FormattedText({ text, isError }
 
   return (
     <div
-      className="formatted-text fade-slide-in"
-      style={{
-        fontSize: 'var(--font-base)',
-        color: isError ? 'var(--color-danger)' : 'var(--color-text-primary)',
-        lineHeight: 1.85,
-      }}
+      className={`formatted-text fade-slide-in ${isError ? 'is-error' : ''}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

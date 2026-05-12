@@ -1,0 +1,383 @@
+/**
+ * VuHai AI Translate — Bento P1 for SectionCard + FormattedText + ShimmerLoader
+ * M1.6a — workspace stage=ready, CORE reading interface (80% user time).
+ *
+ * 2 accents allowed (§3.1 documented exception):
+ * - bento-accent (cinnamon): translate action + status indicators
+ * - bento-accent-2 (purple): review/QA action — genuinely different semantic
+ *
+ * Status badge: 6 states collapsed to cinnamon family via .is-{status} modifier
+ * (precedent: workspace-idle.css QuotaBanner status pattern).
+ *
+ * JSX cleanup: removed ~10 inline style props from SectionCard.jsx,
+ * added 9 new classes (section-card-header, head-left, head-right, title,
+ * meta, actions, panels, panel-en, panel-label, panel-text, agent-progress-*).
+ */
+
+/* ─── Card root ─── */
+.section-card {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  margin-bottom: var(--bento-space-2);
+  overflow: hidden;
+  transition: border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              box-shadow var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.section-card.working {
+  border-color: var(--bento-accent);
+  box-shadow: 0 0 0 3px var(--bento-accent-glow);
+}
+
+/* ─── Header strip ─── */
+.section-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--bento-border);
+  gap: 10px;
+  flex-wrap: wrap;
+  background: transparent;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.section-card.working .section-card-header {
+  background: var(--bento-accent-glow);
+}
+
+.section-card-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.section-card-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.section-card-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: var(--bento-leading-tight);
+}
+
+.section-card-meta {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-tertiary);
+  margin: 2px 0 0;
+}
+
+.section-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ─── Status badge (6 states via .is-{status} modifier) ─── */
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.section-badge.is-idle {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-text-tertiary);
+}
+
+.section-badge.is-translating,
+.section-badge.is-reviewing {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+}
+
+.section-badge.is-translated {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+}
+
+.section-badge.is-reviewed {
+  background: var(--bento-accent-2-glow);
+  color: var(--bento-accent-2-hi);
+}
+
+.section-badge.is-error {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+  border: 1px solid var(--bento-accent);
+}
+
+/* ─── Action buttons (self-contained, no shared btn class) ─── */
+.section-btn-primary,
+.section-btn-ghost,
+.section-btn-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.section-btn-primary {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent);
+}
+.section-btn-primary:hover:not(:disabled) {
+  background: var(--bento-accent-hi);
+  border-color: var(--bento-accent-hi);
+}
+
+.section-btn-ghost {
+  background: transparent;
+  color: var(--bento-text-secondary);
+  border: 1px solid var(--bento-border-hi);
+}
+.section-btn-ghost:hover:not(:disabled) {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-text-primary);
+  border-color: var(--bento-text-tertiary);
+}
+
+.section-btn-review {
+  background: var(--bento-accent-2);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent-2);
+}
+.section-btn-review:hover:not(:disabled) {
+  background: var(--bento-accent-2-hi);
+  border-color: var(--bento-accent-2-hi);
+}
+
+/* ─── 2-column body ─── */
+.section-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+
+.section-panel {
+  padding: 16px 20px;
+}
+
+.section-panel-en {
+  border-right: 1px solid var(--bento-border);
+}
+
+/* ─── Panel labels (DRY — reused EN + VI) ─── */
+.panel-label {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 600;
+  color: var(--bento-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+}
+
+.panel-text {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-body);
+  color: var(--bento-text-primary);
+  line-height: 1.7;
+  white-space: pre-line;
+  margin: 0;
+}
+
+/* ─── Agent progress (translation pipeline status) ─── */
+.agent-progress-list {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agent-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-small);
+  color: var(--bento-text-secondary);
+}
+
+/* ─── Streaming display ─── */
+.streaming-container {
+  position: relative;
+}
+
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--bento-accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink-cursor 0.8s steps(2) infinite;
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* FormattedText (markdown render — used in SectionCard + Viewer)  */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.formatted-text {
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-body);
+  color: var(--bento-text-primary);
+  line-height: var(--bento-leading-relaxed);
+}
+
+.formatted-text.is-error {
+  color: var(--bento-accent-hi);
+}
+
+.formatted-text h1 {
+  font-family: var(--bento-font-display);
+  font-size: 1.35em;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  border-bottom: 2px solid var(--bento-border);
+  padding-bottom: 0.3em;
+  margin: 0.7em 0 0.4em;
+}
+
+.formatted-text h2 {
+  font-family: var(--bento-font-display);
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  margin: 0.6em 0 0.3em;
+}
+
+.formatted-text h3 {
+  font-family: var(--bento-font-display);
+  font-size: 1.08em;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  margin: 0.5em 0 0.25em;
+}
+
+.formatted-text p {
+  margin: 0.6em 0;
+  line-height: 1.7;
+}
+
+.formatted-text ul,
+.formatted-text ol {
+  margin: 0.4em 0 0.4em 1.5em;
+  padding: 0;
+}
+
+.formatted-text li {
+  margin: 0.25em 0;
+  line-height: 1.75;
+}
+
+.formatted-text strong,
+.formatted-text b {
+  font-weight: 600;
+  color: var(--bento-text-primary);
+}
+
+.formatted-text em,
+.formatted-text i {
+  font-style: italic;
+}
+
+.formatted-text blockquote {
+  border-left: 3px solid var(--bento-accent);
+  padding-left: 14px;
+  margin: 0.5em 0;
+  color: var(--bento-text-secondary);
+  font-style: italic;
+}
+
+.formatted-text hr {
+  border: none;
+  border-top: 1px solid var(--bento-border);
+  margin: 1em 0;
+}
+
+.formatted-text table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5em 0;
+  font-size: 0.92em;
+}
+
+.formatted-text th,
+.formatted-text td {
+  border: 1px solid var(--bento-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.formatted-text th {
+  background: var(--bento-bg-card-hi);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Shimmer loader (cinnamon-tinted)                                 */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.shimmer-wrapper {
+  opacity: 0.8;
+}
+
+.shimmer {
+  background: linear-gradient(90deg,
+              var(--bento-bg-card-hi) 25%,
+              var(--bento-border-hi) 50%,
+              var(--bento-bg-card-hi) 75%);
+  background-size: 200% 100%;
+  animation: shimmer-pulse 1.5s infinite;
+  border-radius: var(--bento-radius-sm);
+}
+
+@keyframes shimmer-pulse {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ─── Mobile (1-col body) ─── */
+@media (max-width: 1023px) {
+  .section-panels {
+    grid-template-columns: 1fr;
+  }
+  .section-panel-en {
+    border-right: none;
+    border-bottom: 1px solid var(--bento-border);
+  }
+}
