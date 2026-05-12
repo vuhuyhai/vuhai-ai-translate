@@ -98,7 +98,7 @@ export function DocumentViewerPage({ documentId, onBack }) {
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh' }}>
+      <div className="bento-viewer-loading">
         <div className="spinner spinner-lg" />
       </div>
     );
@@ -106,9 +106,9 @@ export function DocumentViewerPage({ documentId, onBack }) {
 
   if (!document) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <p style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>Không tìm thấy tài liệu</p>
-        <button onClick={onBack} className="btn btn-ghost" style={{ marginTop: 12 }}>← Quay lại</button>
+      <div className="bento-viewer-error">
+        <h2 className="bento-viewer-error-message">Không tìm thấy tài liệu</h2>
+        <button onClick={onBack} className="bento-viewer-btn ghost">← Quay lại</button>
       </div>
     );
   }
@@ -189,33 +189,33 @@ export function DocumentViewerPage({ documentId, onBack }) {
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="dv-main">
+      <main className="bento-viewer-main">
         {selectedSection ? (
           <>
-            <div className="dv-toolbar">
-              <div className="dv-tabs">
-                <button className={`dv-tab ${activeTab === 'translated' ? 'active' : ''}`} onClick={() => setActiveTab('translated')}>
+            <div className="bento-viewer-toolbar">
+              <div className="bento-viewer-tabs">
+                <button className={`bento-viewer-tab${activeTab === 'translated' ? ' active' : ''}`} onClick={() => setActiveTab('translated')}>
                   Bản dịch
                 </button>
-                <button className={`dv-tab ${activeTab === 'original' ? 'active' : ''}`} onClick={() => setActiveTab('original')}>
+                <button className={`bento-viewer-tab${activeTab === 'original' ? ' active' : ''}`} onClick={() => setActiveTab('original')}>
                   Văn bản gốc
                 </button>
                 {selectedSection.editHistory?.length > 0 && (
-                  <button className={`dv-tab ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
+                  <button className={`bento-viewer-tab${activeTab === 'history' ? ' active' : ''}`} onClick={() => setActiveTab('history')}>
                     Lịch sử ({selectedSection.editHistory.length})
                   </button>
                 )}
               </div>
 
               {activeTab === 'translated' && !isEditing && (
-                <div className="dv-toolbar-actions">
-                  <button onClick={() => { setEditValue(selectedSection.translatedText); setIsEditing(true); }} className="btn btn-ghost">
+                <div className="bento-viewer-toolbar-actions">
+                  <button onClick={() => { setEditValue(selectedSection.translatedText); setIsEditing(true); }} className="bento-viewer-btn ghost">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                     Sửa
                   </button>
-                  <button onClick={handleRetranslate} disabled={isRetranslating} className="btn btn-ghost">
+                  <button onClick={handleRetranslate} disabled={isRetranslating} className="bento-viewer-btn ghost">
                     {isRetranslating ? (
-                      <><div className="spinner" style={{ width: 12, height: 12 }} /> Đang dịch...</>
+                      <><span className="bento-viewer-btn-spinner" aria-hidden="true" /> Đang dịch...</>
                     ) : (
                       <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg> Dịch lại</>
                     )}
@@ -224,44 +224,44 @@ export function DocumentViewerPage({ documentId, onBack }) {
               )}
             </div>
 
-            <div className="dv-content custom-scrollbar">
+            <div className="bento-viewer-content">
               {activeTab === 'translated' && (
                 isEditing ? (
-                  <div className="dv-edit-wrap">
-                    <textarea value={editValue} onChange={e => setEditValue(e.target.value)} className="dv-textarea" autoFocus />
-                    <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                      <button onClick={handleSaveEdit} className="btn btn-primary">Lưu thay đổi</button>
-                      <button onClick={() => setIsEditing(false)} className="btn btn-ghost">Hủy</button>
+                  <div className="bento-viewer-edit-wrap">
+                    <textarea value={editValue} onChange={e => setEditValue(e.target.value)} className="bento-viewer-textarea" autoFocus />
+                    <div className="bento-viewer-edit-actions">
+                      <button onClick={() => setIsEditing(false)} className="bento-viewer-btn ghost">Hủy</button>
+                      <button onClick={handleSaveEdit} className="bento-viewer-btn primary">Lưu thay đổi</button>
                     </div>
                   </div>
                 ) : selectedSection.translatedText ? (
-                  <article className="dv-article">
+                  <article className="bento-viewer-article">
                     <FormattedText text={selectedSection.translatedText} />
                   </article>
                 ) : (
-                  <div className="dv-empty">
+                  <div className="bento-viewer-empty">
                     <p>Đoạn này chưa được dịch.</p>
                   </div>
                 )
               )}
 
               {activeTab === 'original' && (
-                <article className="dv-article dv-original">
-                  <pre className="dv-original-text">{selectedSection.originalText}</pre>
+                <article className="bento-viewer-article original">
+                  <pre className="bento-viewer-original-text">{selectedSection.originalText}</pre>
                 </article>
               )}
 
               {activeTab === 'history' && (
-                <div className="dv-history">
+                <div className="bento-viewer-history">
                   {[...(selectedSection.editHistory || [])].reverse().map(record => (
-                    <div key={record.id} className="dv-history-item">
-                      <div className="dv-history-header">
-                        <span className={`dv-history-badge ${record.editedBy === 'ai' ? 'ai' : 'manual'}`}>
+                    <div key={record.id} className="bento-viewer-history-item">
+                      <div className="bento-viewer-history-header">
+                        <span className={`bento-viewer-history-badge ${record.editedBy === 'ai' ? 'ai' : 'manual'}`}>
                           {record.editedBy === 'ai' ? 'AI dịch lại' : 'Chỉnh sửa tay'}
                         </span>
-                        <span className="dv-history-time">{formatRelativeTime(record.editedAt)}</span>
+                        <span className="bento-viewer-history-time">{formatRelativeTime(record.editedAt)}</span>
                       </div>
-                      <p className="dv-history-text">
+                      <p className="bento-viewer-history-text">
                         {record.newText.slice(0, 300)}{record.newText.length > 300 && '...'}
                       </p>
                     </div>
@@ -271,7 +271,7 @@ export function DocumentViewerPage({ documentId, onBack }) {
             </div>
           </>
         ) : (
-          <div className="dv-empty">Chọn một đoạn văn để xem</div>
+          <div className="bento-viewer-empty">Chọn một đoạn văn để xem</div>
         )}
       </main>
 
