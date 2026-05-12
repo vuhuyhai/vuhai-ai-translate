@@ -42,20 +42,22 @@ export function LibraryFilters({ filters, onChange }) {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.searchWrap}>
-        <span style={styles.searchIcon}>🔍</span>
+    <div className="bento-lib-filters">
+      <div className="bento-lib-filter-search-wrap">
+        <span className="bento-lib-filter-search-icon" aria-hidden="true">🔍</span>
         <input
           type="text"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
           placeholder="Tìm kiếm tài liệu..."
-          style={styles.searchInput}
+          aria-label="Tìm kiếm tài liệu"
+          className="bento-lib-filter-search"
         />
         {searchInput && (
           <button
             onClick={() => { setSearchInput(''); onChange({ ...filters, search: '' }); }}
-            style={styles.clearBtn}
+            aria-label="Xoá tìm kiếm"
+            className="bento-lib-filter-clear"
           >✕</button>
         )}
       </div>
@@ -63,7 +65,8 @@ export function LibraryFilters({ filters, onChange }) {
       <select
         value={filters.topic || ''}
         onChange={e => handleChange('topic', e.target.value || null)}
-        style={styles.select}
+        aria-label="Lọc theo chủ đề"
+        className="bento-lib-filter-select"
       >
         {TOPIC_OPTIONS.map(o => (
           <option key={o.value || 'all'} value={o.value || ''}>{o.label}</option>
@@ -73,7 +76,8 @@ export function LibraryFilters({ filters, onChange }) {
       <select
         value={filters.status || ''}
         onChange={e => handleChange('status', e.target.value || null)}
-        style={styles.select}
+        aria-label="Lọc theo trạng thái"
+        className="bento-lib-filter-select"
       >
         {STATUS_OPTIONS.map(o => (
           <option key={o.value || 'all'} value={o.value || ''}>{o.label}</option>
@@ -83,7 +87,8 @@ export function LibraryFilters({ filters, onChange }) {
       <select
         value={filters.sortBy}
         onChange={e => handleChange('sortBy', e.target.value)}
-        style={styles.select}
+        aria-label="Sắp xếp"
+        className="bento-lib-filter-select"
       >
         {SORT_OPTIONS.map(o => (
           <option key={o.value} value={o.value}>{o.label}</option>
@@ -92,35 +97,3 @@ export function LibraryFilters({ filters, onChange }) {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center',
-  },
-  searchWrap: {
-    position: 'relative', flex: '1 1 200px', minWidth: 200,
-  },
-  searchIcon: {
-    position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
-    fontSize: 13, pointerEvents: 'none',
-  },
-  searchInput: {
-    width: '100%', padding: '8px 32px 8px 32px', fontSize: 13,
-    border: '1px solid var(--color-border-secondary)',
-    borderRadius: 'var(--border-radius-md)',
-    background: 'var(--color-background-primary)',
-    color: 'var(--color-text-primary)', boxSizing: 'border-box',
-  },
-  clearBtn: {
-    position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-    background: 'none', border: 'none', cursor: 'pointer',
-    fontSize: 12, color: 'var(--color-text-tertiary)',
-  },
-  select: {
-    padding: '8px 12px', fontSize: 13,
-    border: '1px solid var(--color-border-secondary)',
-    borderRadius: 'var(--border-radius-md)',
-    background: 'var(--color-background-primary)',
-    color: 'var(--color-text-primary)', cursor: 'pointer',
-  },
-};

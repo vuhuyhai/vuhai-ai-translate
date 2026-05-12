@@ -54,11 +54,11 @@ export function LibraryPage({ onOpenDocument, onNewTranslation }) {
 
   if (!isLoading && documents.length === 0) {
     return (
-      <div style={styles.emptyState}>
-        <p style={{ fontSize: 48, margin: '0 0 8px' }}>📚</p>
-        <p style={styles.emptyTitle}>Chưa có tài liệu nào</p>
-        <p style={styles.emptyDesc}>Dịch một tài liệu để bắt đầu xây dựng thư viện.</p>
-        <button onClick={onNewTranslation} style={styles.primaryBtn}>
+      <div className="bento-library-empty">
+        <div className="bento-library-empty-icon">📚</div>
+        <h2 className="bento-library-empty-title">Chưa có tài liệu nào</h2>
+        <p className="bento-library-empty-desc">Dịch một tài liệu để bắt đầu xây dựng thư viện.</p>
+        <button onClick={onNewTranslation} className="bento-library-empty-cta">
           Dịch tài liệu đầu tiên →
         </button>
       </div>
@@ -66,14 +66,14 @@ export function LibraryPage({ onOpenDocument, onNewTranslation }) {
   }
 
   return (
-    <div style={{ padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
+    <div className="bento-library-page">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={styles.pageTitle}>
+      <div className="bento-library-header">
+        <h1 className="bento-library-title">
           Thư viện tài liệu
-          <span style={styles.countBadge}>{documents.length} tài liệu</span>
+          <span className="bento-library-count">{documents.length} tài liệu</span>
         </h1>
-        <button onClick={onNewTranslation} style={styles.primaryBtn}>
+        <button onClick={onNewTranslation} className="bento-library-new-btn">
           + Dịch tài liệu mới
         </button>
       </div>
@@ -82,7 +82,7 @@ export function LibraryPage({ onOpenDocument, onNewTranslation }) {
       <LibraryFilters filters={filters} onChange={setFilters} />
 
       {/* Grid */}
-      <div style={styles.grid}>
+      <div className="bento-library-grid">
         {documents.map(doc => (
           <DocumentCard
             key={doc.id}
@@ -94,14 +94,14 @@ export function LibraryPage({ onOpenDocument, onNewTranslation }) {
         ))}
 
         {isLoading && Array.from({ length: 3 }).map((_, i) => (
-          <div key={`skeleton-${i}`} style={styles.skeleton} />
+          <div key={`skeleton-${i}`} className="bento-library-skeleton" />
         ))}
       </div>
 
       {/* Load more */}
       {hasMore && !isLoading && (
-        <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <button onClick={() => loadDocuments(false)} style={styles.secondaryBtn}>
+        <div className="bento-library-load-more-wrap">
+          <button onClick={() => loadDocuments(false)} className="bento-library-load-more-btn">
             Tải thêm
           </button>
         </div>
@@ -109,44 +109,3 @@ export function LibraryPage({ onOpenDocument, onNewTranslation }) {
     </div>
   );
 }
-
-const styles = {
-  pageTitle: {
-    fontSize: 20, fontWeight: 500, margin: 0, color: 'var(--color-text-primary)',
-  },
-  countBadge: {
-    fontSize: 13, fontWeight: 400, color: 'var(--color-text-tertiary)', marginLeft: 8,
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: 16, marginTop: 16,
-  },
-  skeleton: {
-    height: 180, borderRadius: 'var(--border-radius-lg)',
-    background: 'var(--color-background-secondary)',
-    animation: 'shimmer 1.5s infinite',
-  },
-  emptyState: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', minHeight: '60vh', textAlign: 'center',
-  },
-  emptyTitle: {
-    fontSize: 18, fontWeight: 500, color: 'var(--color-text-primary)', margin: '0 0 6px',
-  },
-  emptyDesc: {
-    fontSize: 14, color: 'var(--color-text-tertiary)', margin: '0 0 20px',
-  },
-  primaryBtn: {
-    padding: '10px 20px', fontSize: 14, fontWeight: 500,
-    background: 'var(--color-primary)', color: '#fff',
-    border: 'none', borderRadius: 'var(--border-radius-md)',
-    cursor: 'pointer',
-  },
-  secondaryBtn: {
-    padding: '9px 20px', fontSize: 13,
-    background: 'none', color: 'var(--color-text-secondary)',
-    border: '1px solid var(--color-border-secondary)',
-    borderRadius: 'var(--border-radius-md)', cursor: 'pointer',
-  },
-};
