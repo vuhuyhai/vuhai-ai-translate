@@ -1,0 +1,292 @@
+/**
+ * VuHai AI Translate — Bento P1 for ShareModal
+ * M1.8.3 — Share link dialog (close M1.8).
+ *
+ * Coexist: CSS cũ inline-style trong ShareModal.jsx được xóa hoàn toàn ở task này
+ * (component-scoped, không có CSS cũ trong index.css cần giữ).
+ * Class prefix mới: `.bento-share-modal-*`.
+ *
+ * 2 accents (§3.1 documented exception, đã có precedent trong pdf-progress.css + viewer.css):
+ * - cinnamon (--bento-accent): primary action, info note, danger (outline only — KHÔNG đỏ)
+ * - purple (--bento-accent-2): copied success state
+ */
+
+/* ─── Overlay ─── */
+.bento-share-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: bento-share-modal-fade-in 200ms ease-out;
+}
+
+@keyframes bento-share-modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Dialog ─── */
+.bento-share-modal {
+  position: relative;
+  background: var(--bento-bg-card);
+  border-radius: var(--bento-radius);
+  max-width: 460px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(20, 18, 16, 0.18);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--bento-font-body);
+  animation: bento-share-modal-scale-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes bento-share-modal-scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ─── Header ─── */
+.bento-share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px 14px;
+}
+
+.bento-share-modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  margin: 0;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+
+.bento-share-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--bento-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.bento-share-modal-close:hover {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-text-primary);
+}
+
+.bento-share-modal-close:focus {
+  outline: none;
+  background: var(--bento-bg-card-hi);
+  box-shadow: 0 0 0 3px var(--bento-accent-glow);
+}
+
+/* ─── Body ─── */
+.bento-share-modal-body {
+  padding: 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bento-share-modal-doc-preview {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--bento-bg-card-hi);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--bento-text-secondary);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ─── Branch 1: create share link ─── */
+.bento-share-modal-option-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--bento-bg-card-hi);
+  border-radius: 12px;
+}
+
+.bento-share-modal-option-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bento-share-modal-option-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--bento-text-primary);
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.bento-share-modal-option-desc {
+  font-size: 12px;
+  color: var(--bento-text-tertiary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.bento-share-modal-checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--bento-accent);
+  cursor: pointer;
+}
+
+.bento-share-modal-info-note {
+  padding: 10px 14px;
+  background: var(--bento-accent-glow);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--bento-accent-hi);
+  line-height: 1.5;
+}
+
+/* ─── Branch 2: manage share link ─── */
+.bento-share-modal-url-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bento-bg-card-hi);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+}
+
+.bento-share-modal-url-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--bento-font-mono);
+  font-size: 12px;
+  color: var(--bento-text-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bento-share-modal-copy-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--bento-bg-card);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--bento-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--bento-font-body);
+  cursor: pointer;
+  line-height: 1.4;
+  flex-shrink: 0;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.bento-share-modal-copy-btn:hover {
+  background: var(--bento-bg-card-hi);
+  border-color: rgba(0, 0, 0, 0.16);
+  color: var(--bento-text-primary);
+}
+
+.bento-share-modal-copy-btn:focus {
+  outline: none;
+  border-color: var(--bento-accent);
+  box-shadow: 0 0 0 3px var(--bento-accent-glow);
+}
+
+.bento-share-modal-copy-btn.copied {
+  background: var(--bento-accent-2-glow);
+  border-color: var(--bento-accent-2);
+  color: var(--bento-accent-2);
+}
+
+.bento-share-modal-stats {
+  font-size: 12px;
+  color: var(--bento-text-tertiary);
+  line-height: 1.5;
+  font-family: var(--bento-font-mono);
+}
+
+/* ─── Danger action (revoke) ─── */
+.bento-share-modal-danger-btn {
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--bento-accent-hi);
+  color: var(--bento-accent-hi);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--bento-font-body);
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.bento-share-modal-danger-btn:hover:not(:disabled) {
+  background: var(--bento-accent-glow);
+}
+
+.bento-share-modal-danger-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--bento-accent-glow);
+}
+
+.bento-share-modal-danger-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Primary action (create, full-width) ─── */
+.bento-share-modal-primary-btn {
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: var(--bento-accent-hi);
+  border: 1px solid transparent;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--bento-font-body);
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.bento-share-modal-primary-btn:hover:not(:disabled) {
+  background: #9F3A17;
+  transform: translateY(-1px);
+}
+
+.bento-share-modal-primary-btn:active {
+  transform: translateY(0);
+}
+
+.bento-share-modal-primary-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--bento-accent-glow);
+}
+
+.bento-share-modal-primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
