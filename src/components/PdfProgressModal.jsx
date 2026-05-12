@@ -5,18 +5,19 @@ export function PdfProgressModal({ isOpen, steps, currentStepIndex, percent, onC
   const isDone = percent >= 100;
 
   return (
-    <div className="pdf-modal-overlay">
-      <div className="pdf-modal">
+    <div className="bento-pdf-modal-overlay">
+      <div
+        className="bento-pdf-modal"
+        role="dialog"
+        aria-labelledby="bento-pdf-modal-title"
+        aria-modal="true"
+      >
         {/* Close button — visible when done */}
         {(isDone || onClose) && (
           <button
             onClick={onClose}
             aria-label="Đóng"
-            style={{
-              position: 'absolute', top: 10, right: 12,
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: 4, lineHeight: 1, fontSize: 18, color: '#999',
-            }}
+            className="bento-pdf-modal-close"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M4 4l8 8M12 4l-8 8" />
@@ -25,9 +26,9 @@ export function PdfProgressModal({ isOpen, steps, currentStepIndex, percent, onC
         )}
 
         {/* Icon */}
-        <div className="pdf-modal-icon">
+        <div className={`bento-pdf-modal-icon${isDone ? ' done' : ''}`}>
           {isDone ? (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6L9 17l-5-5" />
             </svg>
           ) : (
@@ -36,36 +37,38 @@ export function PdfProgressModal({ isOpen, steps, currentStepIndex, percent, onC
         </div>
 
         {/* Current step */}
-        <p className="pdf-modal-label">{isDone ? 'Xuất PDF thành công!' : currentStep?.label || 'Đang xử lý...'}</p>
-        {!isDone && currentStep?.desc && <p className="pdf-modal-desc">{currentStep.desc}</p>}
+        <h2 id="bento-pdf-modal-title" className="bento-pdf-modal-label">
+          {isDone ? 'Xuất PDF thành công!' : currentStep?.label || 'Đang xử lý...'}
+        </h2>
+        {!isDone && currentStep?.desc && <p className="bento-pdf-modal-desc">{currentStep.desc}</p>}
 
         {/* Progress bar */}
-        <div className="pdf-modal-bar">
-          <div className="pdf-modal-bar-fill" style={{
-            width: `${Math.min(percent, 100)}%`,
-            background: isDone ? 'var(--color-success)' : 'var(--color-primary)',
-          }} />
+        <div className="bento-pdf-modal-bar">
+          <div
+            className={`bento-pdf-modal-bar-fill${isDone ? ' done' : ''}`}
+            style={{ width: `${Math.min(percent, 100)}%` }}
+          />
         </div>
 
         {/* Meta */}
-        <div className="pdf-modal-meta">
-          <span className="pdf-modal-percent" style={{ color: isDone ? 'var(--color-success)' : 'var(--color-primary)' }}>{percent}%</span>
-          <span className="pdf-modal-steps-count">Bước {currentStepIndex + 1} / {steps.length}</span>
+        <div className="bento-pdf-modal-meta">
+          <span className={`bento-pdf-modal-percent${isDone ? ' done' : ''}`}>{percent}%</span>
+          <span className="bento-pdf-modal-steps-count">Bước {currentStepIndex + 1} / {steps.length}</span>
         </div>
 
         {/* Steps list */}
-        <div className="pdf-modal-steps">
+        <div className="bento-pdf-modal-steps">
           {steps.map((step, i) => {
             const stepDone = i < currentStepIndex || isDone;
             const isActive = i === currentStepIndex && !isDone;
             return (
-              <div key={i} className="pdf-modal-step-row">
-                <div className={`pdf-modal-dot ${stepDone ? 'done' : isActive ? 'active' : 'pending'}`}>
+              <div key={i} className="bento-pdf-modal-step-row">
+                <div className={`bento-pdf-modal-dot ${stepDone ? 'done' : isActive ? 'active' : 'pending'}`}>
                   {stepDone && (
-                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" /></svg>
+                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" /></svg>
                   )}
                 </div>
-                <span className={`pdf-modal-step-label ${stepDone ? 'done' : isActive ? 'active' : ''}`}>
+                <span className={`bento-pdf-modal-step-label ${stepDone ? 'done' : isActive ? 'active' : ''}`}>
                   {step.label}
                 </span>
               </div>

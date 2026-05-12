@@ -1,0 +1,217 @@
+/**
+ * VuHai AI Translate — Bento P1 for PdfProgressModal
+ * M1.6c.2 — PDF export progress dialog.
+ *
+ * Coexist: CSS cũ `.pdf-modal-*` trong src/index.css giữ nguyên (dead code,
+ * sẽ xóa ở M1.16). Class prefix mới: `.bento-pdf-modal-*`.
+ *
+ * 2 accents (§3.1 documented exception, đã có precedent trong section-card.css):
+ * - cinnamon (--bento-accent): in-progress state
+ * - purple (--bento-accent-2): done/success state
+ */
+
+/* ─── Overlay ─── */
+.bento-pdf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: bento-modal-fade-in 200ms ease-out;
+}
+
+@keyframes bento-modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Dialog ─── */
+.bento-pdf-modal {
+  position: relative;
+  background: var(--bento-bg-card);
+  border-radius: var(--bento-radius);
+  padding: 32px 28px 28px;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(20, 18, 16, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: var(--bento-font-body);
+  animation: bento-modal-scale-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bento-modal-scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ─── Close button ─── */
+.bento-pdf-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--bento-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 160ms ease, color 160ms ease;
+  padding: 0;
+}
+
+.bento-pdf-modal-close:hover {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-text-primary);
+}
+
+/* ─── Status icon frame ─── */
+.bento-pdf-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bento-accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bento-accent);
+  margin: 0 auto;
+  transition: background-color 240ms ease, color 240ms ease;
+}
+
+.bento-pdf-modal-icon.done {
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--bento-accent-2);
+}
+
+/* ─── Title + desc ─── */
+.bento-pdf-modal-label {
+  font-family: var(--bento-font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  text-align: center;
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.bento-pdf-modal-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--bento-text-secondary);
+  text-align: center;
+  margin: -8px 0 0 0;
+}
+
+/* ─── Progress bar ─── */
+.bento-pdf-modal-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bento-bg-card-hi);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.bento-pdf-modal-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--bento-accent);
+  transition: width 320ms cubic-bezier(0.16, 1, 0.3, 1), background-color 240ms ease;
+}
+
+.bento-pdf-modal-bar-fill.done {
+  background: var(--bento-accent-2);
+}
+
+/* ─── Meta row ─── */
+.bento-pdf-modal-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+}
+
+.bento-pdf-modal-percent {
+  font-family: var(--bento-font-mono);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--bento-accent);
+  transition: color 240ms ease;
+}
+
+.bento-pdf-modal-percent.done {
+  color: var(--bento-accent-2);
+}
+
+.bento-pdf-modal-steps-count {
+  color: var(--bento-text-tertiary);
+  font-size: 12px;
+}
+
+/* ─── Steps list ─── */
+.bento-pdf-modal-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.bento-pdf-modal-step-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.bento-pdf-modal-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--bento-text-tertiary);
+  background: var(--bento-bg-card);
+  color: var(--bento-text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease;
+}
+
+.bento-pdf-modal-dot.active {
+  background: var(--bento-accent-glow);
+  border-color: var(--bento-accent);
+  color: var(--bento-accent);
+}
+
+.bento-pdf-modal-dot.done {
+  background: var(--bento-accent);
+  border-color: var(--bento-accent);
+  color: #FFFFFF;
+}
+
+.bento-pdf-modal-step-label {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--bento-text-tertiary);
+  transition: color 240ms ease, font-weight 240ms ease;
+}
+
+.bento-pdf-modal-step-label.active {
+  color: var(--bento-text-primary);
+  font-weight: 500;
+}
+
+.bento-pdf-modal-step-label.done {
+  color: var(--bento-text-secondary);
+}
