@@ -118,30 +118,35 @@ export function DocumentViewerPage({ documentId, onBack }) {
   const progressPercent = Math.round((completed / total) * 100);
   const docTitle = (document.customTitle || document.title || '').replace('.pdf', '');
 
+  const isDocComplete = document.status === 'complete';
+
   return (
-    <div className="dv-layout">
+    <div className="bento-viewer-layout">
       {/* ── SIDEBAR ── */}
-      <aside className="dv-sidebar">
-        <div className="dv-sidebar-top">
-          <button onClick={onBack} className="dv-back-btn">
+      <aside className="bento-viewer-sidebar">
+        <div className="bento-viewer-sidebar-top">
+          <button onClick={onBack} className="bento-viewer-back">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             Thư viện
           </button>
 
-          <div className="dv-doc-info">
-            <h2 className="dv-doc-title">{docTitle}</h2>
-            <div className="dv-doc-meta">
-              <span className="dv-tag">{document.topic}</span>
-              <span className="dv-meta-text">{document.fileMetadata?.pages || '?'} trang</span>
-              <span className="dv-meta-text">{completed}/{total} đoạn</span>
+          <div className="bento-viewer-doc-info">
+            <h2 className="bento-viewer-doc-title">{docTitle}</h2>
+            <div className="bento-viewer-doc-meta">
+              <span className="bento-viewer-tag">{document.topic}</span>
+              <span className="bento-viewer-meta-text">{document.fileMetadata?.pages || '?'} trang</span>
+              <span className="bento-viewer-meta-text">{completed}/{total} đoạn</span>
             </div>
-            <div className="dv-progress-bar">
-              <div className="dv-progress-fill" style={{ width: `${progressPercent}%` }} />
+            <div className="bento-viewer-progress">
+              <div
+                className={`bento-viewer-progress-fill${isDocComplete ? ' complete' : ''}`}
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
           </div>
         </div>
 
-        <nav className="dv-section-list custom-scrollbar">
+        <nav className="bento-viewer-section-list">
           {document.sections?.map((section, idx) => {
             const isActive = idx === selectedIdx;
             const isDone = section.status === 'done';
@@ -149,34 +154,34 @@ export function DocumentViewerPage({ documentId, onBack }) {
               <button
                 key={section.id}
                 onClick={() => { setSelectedIdx(idx); setIsEditing(false); setActiveTab('translated'); }}
-                className={`dv-section-item ${isActive ? 'active' : ''}`}
+                className={`bento-viewer-section-item${isActive ? ' active' : ''}`}
               >
-                <span className={`dv-section-dot ${isDone ? 'done' : ''}`}>
+                <span className={`bento-viewer-section-dot${isDone ? ' done' : ''}`}>
                   {isDone && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </span>
-                <span className="dv-section-label">
+                <span className="bento-viewer-section-label">
                   {section.title || `Phần ${idx + 1}`}
                 </span>
-                {section.lastEditedAt && <span className="dv-edited-badge">Sửa</span>}
+                {section.lastEditedAt && <span className="bento-viewer-edited-badge">Sửa</span>}
               </button>
             );
           })}
         </nav>
 
-        <div className="dv-sidebar-footer">
-          <button onClick={() => handleExport('doc')} className="dv-export-btn">
+        <div className="bento-viewer-sidebar-footer">
+          <button onClick={() => handleExport('doc')} className="bento-viewer-export-btn">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             DOC
           </button>
-          <button onClick={() => handleExport('txt')} className="dv-export-btn">
+          <button onClick={() => handleExport('txt')} className="bento-viewer-export-btn">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             TXT
           </button>
-          <button onClick={() => handleExport('copy')} className="dv-export-btn">
+          <button onClick={() => handleExport('copy')} className="bento-viewer-export-btn">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
             Copy
           </button>
-          <button onClick={() => setShowShareModal(true)} className="dv-export-btn">
+          <button onClick={() => setShowShareModal(true)} className="bento-viewer-export-btn">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Chia sẻ
           </button>
