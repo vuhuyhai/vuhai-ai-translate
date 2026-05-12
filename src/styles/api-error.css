@@ -1,0 +1,265 @@
+/**
+ * VuHai AI Translate — Bento P1 for ApiErrorCard
+ * M1.6c.1 — Error surface (full + compact variants).
+ *
+ * Coexist: CSS cũ `.api-error-*` trong src/index.css giữ nguyên (dead code,
+ * sẽ xóa ở M1.16). Class prefix mới: `.bento-api-error-*` tránh collision.
+ *
+ * 1 accent (cinnamon family): accent-hi cho danger, accent cho warn.
+ * Severity dùng tinted glow background + left-border stripe (§3.1 minimal palette).
+ */
+
+/* ═══ Variant: FULL ═══ */
+.bento-api-error-card {
+  background: var(--bento-bg-card);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--bento-radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--bento-font-body);
+}
+
+.bento-api-error-card.danger { border-left: 3px solid var(--bento-accent-hi); }
+.bento-api-error-card.warn   { border-left: 3px solid var(--bento-accent); }
+
+.bento-api-error-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.bento-api-error-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--bento-font-display);
+  line-height: 1;
+}
+
+.bento-api-error-dot.danger {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+}
+
+.bento-api-error-dot.warn {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent);
+}
+
+.bento-api-error-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  margin: 0 0 6px 0;
+  line-height: 1.35;
+  font-family: var(--bento-font-display);
+  letter-spacing: -0.01em;
+}
+
+.bento-api-error-desc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--bento-text-secondary);
+}
+
+/* ─── Steps block ─── */
+.bento-api-error-steps {
+  background: var(--bento-bg-card-hi);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bento-api-error-steps-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bento-text-tertiary);
+  font-family: var(--bento-font-display);
+}
+
+.bento-api-error-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--bento-text-secondary);
+}
+
+.bento-api-error-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bento-accent-hi);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--bento-font-mono);
+  line-height: 1;
+}
+
+.bento-api-error-card.warn .bento-api-error-step-num {
+  background: var(--bento-accent);
+}
+
+/* ─── Actions ─── */
+.bento-api-error-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bento-api-error-action-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: transparent;
+  color: var(--bento-text-primary);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--bento-font-body);
+  transition: background-color 160ms ease, transform 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.bento-api-error-action-btn:hover:not(:disabled) {
+  background: var(--bento-bg-card-hi);
+}
+
+.bento-api-error-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bento-api-error-action-btn.primary {
+  background: var(--bento-accent-hi);
+  color: #FFFFFF;
+  border-color: transparent;
+}
+
+.bento-api-error-action-btn.primary:hover:not(:disabled) {
+  background: #9F3A17;
+}
+
+.bento-api-error-card.warn .bento-api-error-action-btn.primary {
+  background: var(--bento-accent);
+}
+
+.bento-api-error-card.warn .bento-api-error-action-btn.primary:hover:not(:disabled) {
+  background: #B8451F;
+}
+
+/* ─── Raw error details ─── */
+.bento-api-error-details {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--bento-text-tertiary);
+}
+
+.bento-api-error-details summary {
+  cursor: pointer;
+  padding: 6px 0;
+  color: var(--bento-text-tertiary);
+  user-select: none;
+  font-family: var(--bento-font-body);
+}
+
+.bento-api-error-details summary:hover {
+  color: var(--bento-text-secondary);
+}
+
+.bento-api-error-details pre {
+  background: var(--bento-bg-card-hi);
+  padding: 12px;
+  border-radius: 8px;
+  font-family: var(--bento-font-mono);
+  font-size: 11px;
+  color: var(--bento-text-secondary);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 8px 0 0 0;
+  line-height: 1.5;
+  max-height: 200px;
+}
+
+/* ═══ Variant: COMPACT ═══ */
+.bento-api-error-compact {
+  background: var(--bento-bg-card);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--bento-font-body);
+}
+
+.bento-api-error-compact.danger { border-left: 3px solid var(--bento-accent-hi); }
+.bento-api-error-compact.warn   { border-left: 3px solid var(--bento-accent); }
+
+.bento-api-error-compact-body {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.bento-api-error-compact-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bento-api-error-compact-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--bento-font-display);
+}
+
+.bento-api-error-compact-desc {
+  font-size: 12px;
+  color: var(--bento-text-secondary);
+  line-height: 1.4;
+}
+
+.bento-api-error-compact-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bento-api-error-compact-actions .bento-api-error-action-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Compact severity dot — smaller variant */
+.bento-api-error-compact .bento-api-error-dot {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+}

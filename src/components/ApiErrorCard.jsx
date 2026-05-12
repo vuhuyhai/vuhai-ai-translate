@@ -43,19 +43,21 @@ export const ApiErrorCard = React.memo(function ApiErrorCard({
     }
   };
 
+  const severityClass = isError ? 'danger' : 'warn';
+
   if (compact) {
     return (
-      <div className={`api-error-compact ${isError ? 'api-error-danger' : 'api-error-warn'}`}>
-        <div className="api-error-compact-body">
-          <div className={`api-error-dot ${isError ? 'danger' : 'warn'}`} />
-          <div className="api-error-compact-text">
-            <span className="api-error-compact-title">{info.title}</span>
-            <span className="api-error-compact-desc">{info.description}</span>
+      <div className={`bento-api-error-compact ${severityClass}`}>
+        <div className="bento-api-error-compact-body">
+          <div className={`bento-api-error-dot ${severityClass}`}>!</div>
+          <div className="bento-api-error-compact-text">
+            <span className="bento-api-error-compact-title">{info.title}</span>
+            <span className="bento-api-error-compact-desc">{info.description}</span>
           </div>
         </div>
-        <div className="api-error-compact-actions">
+        <div className="bento-api-error-compact-actions">
           {info.actions.slice(0, 2).map((action, i) => (
-            <button key={i} className="api-error-action-btn"
+            <button key={i} className="bento-api-error-action-btn"
               onClick={() => handleAction(action)}
               disabled={action.type === 'retry' && countdown !== null}>
               {action.type === 'retry' && countdown ? `${countdown}s` : action.label}
@@ -67,29 +69,29 @@ export const ApiErrorCard = React.memo(function ApiErrorCard({
   }
 
   return (
-    <div className={`api-error-card ${isError ? 'api-error-danger' : 'api-error-warn'}`}>
-      <div className="api-error-header">
-        <div className={`api-error-dot ${isError ? 'danger' : 'warn'}`} />
+    <div className={`bento-api-error-card ${severityClass}`}>
+      <div className="bento-api-error-header">
+        <div className={`bento-api-error-dot ${severityClass}`}>!</div>
         <div>
-          <div className="api-error-title">{info.title}</div>
-          <div className="api-error-desc">{info.description}</div>
+          <h3 className="bento-api-error-title">{info.title}</h3>
+          <div className="bento-api-error-desc">{info.description}</div>
         </div>
       </div>
 
-      <div className="api-error-steps">
-        <div className="api-error-steps-label">Cách khắc phục</div>
+      <div className="bento-api-error-steps">
+        <div className="bento-api-error-steps-label">Cách khắc phục</div>
         {info.steps.map((step, i) => (
-          <div key={i} className="api-error-step">
-            <span className="api-error-step-num">{i + 1}.</span>
+          <div key={i} className="bento-api-error-step">
+            <span className="bento-api-error-step-num">{i + 1}</span>
             <span>{step}</span>
           </div>
         ))}
       </div>
 
-      <div className="api-error-actions">
+      <div className="bento-api-error-actions">
         {info.actions.map((action, i) => (
           <button key={i}
-            className={`api-error-action-btn ${i === 0 ? 'primary' : ''}`}
+            className={`bento-api-error-action-btn ${i === 0 ? 'primary' : ''}`}
             onClick={() => handleAction(action)}
             disabled={action.type === 'retry' && countdown !== null}>
             {action.type === 'retry' && countdown ? `Thử lại sau ${countdown}s` : action.label}
@@ -98,7 +100,7 @@ export const ApiErrorCard = React.memo(function ApiErrorCard({
       </div>
 
       {error?.rawError && (
-        <details className="api-error-details">
+        <details className="bento-api-error-details">
           <summary>Chi tiết kỹ thuật</summary>
           <pre>{JSON.stringify(error.rawError?.error || error.rawError, null, 2)}</pre>
         </details>
