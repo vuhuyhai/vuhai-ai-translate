@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { libraryService } from '../../services/libraryService';
-import { tabContent, tabTitle, filterRow, searchInput, filterSelect, countLabel, tableHeader, tableRow, emptyRow, topicBadge, statusBadge, actionSmallBtn, formatRelativeTime } from './styles';
+import { formatRelativeTime } from './styles';
 
 const TOPIC_LABELS = {
   '': 'Tất cả chủ đề', marketing: 'Marketing', technology: 'Công nghệ', tech: 'Công nghệ',
   finance: 'Tài chính', medical: 'Y tế', health: 'Y tế', legal: 'Pháp luật',
   education: 'Giáo dục', ecommerce: 'TMĐT', realestate: 'BĐS', science: 'Khoa học', general: 'Chung',
+};
+
+const STATUS_LABELS = {
+  complete: 'Hoàn thành',
+  partial: 'Đang dịch',
+  draft: 'Nháp',
 };
 
 export function DocumentsTab({ onOpenDocument }) {
@@ -31,56 +37,93 @@ export function DocumentsTab({ onOpenDocument }) {
   };
 
   return (
-    <div style={tabContent}>
-      <h2 style={tabTitle}>Tài liệu đã dịch</h2>
+    <div className="bento-dash-tab">
+      <h2 className="bento-dash-tab-title">Tài liệu đã dịch</h2>
 
-      <div style={filterRow}>
-        <input type="text" placeholder="Tìm theo tên..." value={search} onChange={e => setSearch(e.target.value)} style={searchInput} />
-        <select value={topicFilter} onChange={e => setTopicFilter(e.target.value)} style={filterSelect}>
+      <div className="bento-dash-filters">
+        <input
+          type="text"
+          className="bento-dash-filter-search"
+          placeholder="Tìm theo tên..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          aria-label="Tìm kiếm tài liệu"
+        />
+        <select
+          className="bento-dash-filter-select"
+          value={topicFilter}
+          onChange={e => setTopicFilter(e.target.value)}
+          aria-label="Lọc theo chủ đề"
+        >
           {Object.entries(TOPIC_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={filterSelect}>
+        <select
+          className="bento-dash-filter-select"
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value)}
+          aria-label="Sắp xếp"
+        >
           <option value="updatedAt">Mới nhất</option>
           <option value="createdAt">Cũ nhất</option>
         </select>
       </div>
 
-      <p style={countLabel}>{documents.length} tài liệu</p>
+      <p className="bento-dash-count-label">{documents.length} tài liệu</p>
 
       {loading ? (
-        <div>{Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="shimmer" style={{ height: 44, borderRadius: 'var(--border-radius-sm)', marginBottom: 6 }} />
-        ))}</div>
-      ) : (
         <div>
-          <div style={tableHeader}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bento-dash-shimmer" style={{ height: 48, marginBottom: 6, borderRadius: 10 }} />
+          ))}
+        </div>
+      ) : (
+        <div className="bento-dash-table">
+          <div className="bento-dash-table-head">
             <span style={{ flex: 3 }}>Tên tài liệu</span>
             <span style={{ flex: 1 }}>Chủ đề</span>
             <span style={{ flex: 1 }}>Trạng thái</span>
             <span style={{ flex: 1 }}>Đoạn</span>
             <span style={{ flex: 1 }}>Cập nhật</span>
-            <span style={{ width: 100 }}>Thao tác</span>
+            <span style={{ width: 110 }}>Thao tác</span>
           </div>
           {documents.length === 0 ? (
-            <div style={emptyRow}>Không tìm thấy tài liệu nào</div>
+            <div className="bento-dash-table-empty">Không tìm thấy tài liệu nào</div>
           ) : documents.map(doc => (
-            <div key={doc.id} style={tableRow}>
-              <span style={{ flex: 3, fontWeight: 500, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {(doc.customTitle || doc.title || '').replace('.pdf', '')}
+            <div key={doc.id} className="bento-dash-table-row">
+              <div style={{ flex: 3, minWidth: 0 }}>
+                <p className="bento-dash-doc-title">
+                  {(doc.customTitle || doc.title || '').replace('.pdf', '')}
+                </p>
+              </div>
+              <span style={{ flex: 1 }}>
+                <span className="bento-dash-doc-badge topic">{TOPIC_LABELS[doc.topic] || doc.topic}</span>
               </span>
-              <span style={{ flex: 1 }}><span style={topicBadge}>{TOPIC_LABELS[doc.topic] || doc.topic}</span></span>
-              <span style={{ flex: 1 }}><span style={statusBadge(doc.status)}>
-                {doc.status === 'complete' ? 'Hoàn thành' : doc.status === 'partial' ? 'Đang dịch' : 'Nháp'}
-              </span></span>
-              <span style={{ flex: 1, color: 'var(--color-text-secondary)', fontSize: 12 }}>
+              <span style={{ flex: 1 }}>
+                <span className={`bento-dash-doc-badge status-${doc.status || 'draft'}`}>
+                  {STATUS_LABELS[doc.status] || 'Nháp'}
+                </span>
+              </span>
+              <span className="bento-dash-doc-meta" style={{ flex: 1 }}>
                 {doc.completedSections}/{doc.totalSections}
               </span>
-              <span style={{ flex: 1, color: 'var(--color-text-tertiary)', fontSize: 12 }}>
+              <span className="bento-dash-doc-meta" style={{ flex: 1 }}>
                 {formatRelativeTime(doc.updatedAt)}
               </span>
-              <div style={{ width: 100, display: 'flex', gap: 6 }}>
-                <button onClick={() => onOpenDocument(doc.id)} style={actionSmallBtn}>Mở</button>
-                <button onClick={() => handleDelete(doc.id)} style={{ ...actionSmallBtn, color: 'var(--color-text-danger)' }}>Xóa</button>
+              <div className="bento-dash-doc-actions" style={{ width: 110 }}>
+                <button
+                  type="button"
+                  className="bento-dash-doc-action-btn"
+                  onClick={() => onOpenDocument(doc.id)}
+                >
+                  Mở
+                </button>
+                <button
+                  type="button"
+                  className="bento-dash-doc-action-btn delete"
+                  onClick={() => handleDelete(doc.id)}
+                >
+                  Xóa
+                </button>
               </div>
             </div>
           ))}
