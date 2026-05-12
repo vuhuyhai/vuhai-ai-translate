@@ -16,7 +16,7 @@
 
 .app-header-logo {
   background: var(--bento-accent);
-  border-radius: var(--bento-radius);
+  border-radius: var(--bento-radius-sm);
 }
 
 .app-header-title {

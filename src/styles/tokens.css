@@ -65,8 +65,10 @@
   --bento-grid-cols:     12;
   --bento-grid-gap:      24px;
 
-  /* ─── Radius (1 only — Bento §3.2) ──────────────────────── */
-  --bento-radius:        20px;
+  /* ─── Radius (Bento §3.2 — 1 main + 1 exception cho element < 40px) ── */
+  --bento-radius:        20px;       /* main: cards, buttons, dropdowns */
+  --bento-radius-sm:     8px;        /* exception: logo box, badge, dot indicator (< 40px) */
+  --bento-radius-circle: 50%;        /* exception: avatar, status dot */
 
   /* ─── Animation ─────────────────────────────────────────── */
   --bento-ease-quiet:    cubic-bezier(0.25, 0.1, 0.25, 1);
