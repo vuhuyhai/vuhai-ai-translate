@@ -19,69 +19,77 @@ export function DashboardPage({ onBack, onOpenDocument }) {
 
   if (!user || user.isAnonymous) {
     return (
-      <div style={styles.loginGate}>
-        <p style={{ fontSize: 40, marginBottom: 12 }}>🔒</p>
-        <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-text-primary)', margin: '0 0 8px' }}>
-          Đăng nhập để xem trang cá nhân
-        </p>
-        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '0 0 20px', lineHeight: 1.6 }}>
+      <div className="bento-dash-login-gate">
+        <p className="bento-dash-login-emoji">🔒</p>
+        <h2 className="bento-dash-login-title">Yêu cầu đăng nhập</h2>
+        <p className="bento-dash-login-desc">
           Lưu tài liệu, quản lý bảng thuật ngữ và xem lịch sử dịch của bạn.
         </p>
-        <button onClick={() => authService.upgradeToGoogle()} style={styles.googleBtn}>
+        <button
+          type="button"
+          className="bento-dash-google-btn"
+          onClick={() => authService.upgradeToGoogle()}
+        >
           Đăng nhập với Google
         </button>
-        <button onClick={onBack} style={styles.backLink}>← Quay lại</button>
+        <button type="button" className="bento-dash-login-back" onClick={onBack}>
+          ← Quay lại
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: 'calc(100vh - 60px)' }}>
-
-      {/* Sidebar */}
-      <div style={styles.sidebar}>
-        <div style={styles.userInfo}>
+    <div className="bento-dash-layout">
+      <aside className="bento-dash-sidebar">
+        <div className="bento-dash-user-info">
           <img
+            className="bento-dash-avatar"
             src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || '?')}&background=e04544&color=fff&size=96&bold=true`}
-            alt="avatar"
+            alt={`${user.displayName || 'Người dùng'} avatar`}
             referrerPolicy="no-referrer"
-            style={styles.avatar}
           />
-          <p style={styles.userName}>{user.displayName || 'Người dùng'}</p>
-          <p style={styles.userEmail}>{user.email}</p>
+          <h1 className="bento-dash-user-name">{user.displayName || 'Người dùng'}</h1>
+          <p className="bento-dash-user-email">{user.email}</p>
         </div>
 
-        {/* Primary CTA — back to translate */}
-        <div style={{ padding: '12px 14px 4px' }}>
-          <button onClick={onBack} className="dash-back-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" />
+        <div className="bento-dash-back-wrap">
+          <button type="button" className="bento-dash-back-btn" onClick={onBack}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
             </svg>
             Dịch tài liệu
           </button>
         </div>
 
-        <nav style={{ flex: 1, padding: '8px 0' }}>
+        <nav className="bento-dash-nav" role="tablist" aria-label="Dashboard sections">
           {TABS.map(tab => (
             <button
               key={tab.id}
+              type="button"
+              role="tab"
+              id={`bento-dash-tab-${tab.id}`}
+              aria-selected={activeTab === tab.id}
+              aria-controls={`bento-dash-panel-${tab.id}`}
+              className="bento-dash-nav-item"
               onClick={() => setActiveTab(tab.id)}
-              style={{
-                ...styles.navItem,
-                background: activeTab === tab.id ? 'var(--color-primary-light)' : 'none',
-                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                fontWeight: activeTab === tab.id ? 700 : 500,
-              }}
             >
-              <span style={{ fontSize: 16, marginRight: 10, opacity: 0.8 }}>{tab.icon}</span>
+              <span className="bento-dash-nav-icon" aria-hidden="true">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
         </nav>
-      </div>
+      </aside>
 
-      {/* Content */}
-      <div style={styles.content}>
+      <div
+        className="bento-dash-content"
+        role="tabpanel"
+        id={`bento-dash-panel-${activeTab}`}
+        aria-labelledby={`bento-dash-tab-${activeTab}`}
+        tabIndex={0}
+      >
         {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'documents' && <DocumentsTab onOpenDocument={onOpenDocument} />}
         {activeTab === 'glossary' && <GlossaryTab />}
@@ -90,47 +98,3 @@ export function DashboardPage({ onBack, onOpenDocument }) {
     </div>
   );
 }
-
-const styles = {
-  loginGate: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', minHeight: '60vh', textAlign: 'center', padding: 24,
-  },
-  googleBtn: {
-    padding: '10px 24px', fontSize: 14, fontWeight: 500,
-    background: 'var(--color-text-primary)', color: 'var(--color-background-primary)',
-    border: 'none', borderRadius: 'var(--border-radius-md)', cursor: 'pointer',
-    marginBottom: 12,
-  },
-  backLink: {
-    background: 'none', border: 'none', fontSize: 13,
-    color: 'var(--color-text-secondary)', cursor: 'pointer',
-  },
-  sidebar: {
-    background: 'var(--color-background-primary)',
-    borderRight: '0.5px solid var(--color-border-tertiary)',
-    display: 'flex', flexDirection: 'column', padding: '0 0 16px',
-  },
-  userInfo: {
-    padding: '20px 20px 16px', textAlign: 'center',
-    borderBottom: '0.5px solid var(--color-border-tertiary)',
-  },
-  avatar: { width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', marginBottom: 10 },
-  avatarFallback: {
-    width: 48, height: 48, borderRadius: '50%', margin: '0 auto 10px',
-    background: 'var(--color-primary)', color: '#fff',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 18, fontWeight: 500,
-  },
-  userName: { fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', margin: '0 0 2px' },
-  userEmail: { fontSize: 12, color: 'var(--color-text-tertiary)', margin: 0 },
-  navItem: {
-    display: 'flex', alignItems: 'center', width: '100%', padding: '10px 20px',
-    border: 'none', cursor: 'pointer', fontSize: 13, transition: 'all 0.15s',
-    textAlign: 'left', fontFamily: 'inherit', borderRadius: 0,
-    background: 'none',
-  },
-  content: {
-    background: 'var(--color-bg-app)', overflowY: 'auto',
-  },
-};
