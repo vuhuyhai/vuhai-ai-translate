@@ -6,10 +6,10 @@ const TOPIC_LABELS = {
   ecommerce: 'TMĐT', realestate: 'BĐS', science: 'Khoa học', general: 'Chung',
 };
 
-const STATUS_CONFIG = {
-  complete: { label: 'Hoàn thành', color: 'var(--color-status-translated-bg)', text: 'var(--color-status-translated-text)' },
-  partial:  { label: 'Đang dịch',  color: 'var(--color-status-translating-bg)', text: 'var(--color-status-translating-text)' },
-  draft:    { label: 'Nháp',       color: 'var(--color-background-secondary)', text: 'var(--color-text-tertiary)' },
+const STATUS_LABELS = {
+  complete: 'Hoàn thành',
+  partial:  'Đang dịch',
+  draft:    'Nháp',
 };
 
 function formatRelativeTime(timestamp) {
@@ -30,30 +30,36 @@ export function DocumentCard({ document, onOpen, onDelete, onRename }) {
   const total = document.totalSections || 1;
   const completed = document.completedSections || 0;
   const progress = Math.round((completed / total) * 100);
-  const status = STATUS_CONFIG[document.status] || STATUS_CONFIG.draft;
+  const statusKey = STATUS_LABELS[document.status] ? document.status : 'draft';
+  const statusLabel = STATUS_LABELS[statusKey];
 
   return (
-    <div style={styles.card} onClick={onOpen}>
+    <div
+      className="bento-doc-card"
+      role="article"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={e => { if (e.key === 'Enter') onOpen(); }}
+    >
       {/* Progress bar top */}
-      <div style={styles.progressTrack}>
-        <div style={{
-          ...styles.progressFill,
-          width: `${progress}%`,
-          background: progress === 100 ? 'var(--color-text-success)' : 'var(--color-text-info)',
-        }} />
+      <div className="bento-doc-card-progress">
+        <div
+          className={`bento-doc-card-progress-fill${statusKey === 'complete' ? ' complete' : ''}`}
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
-      <div style={{ padding: '14px 16px' }}>
+      <div className="bento-doc-card-body">
         {/* Badges */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
-          <span style={{ ...styles.badge, background: 'var(--color-background-info)', color: 'var(--color-text-info)' }}>
+        <div className="bento-doc-card-badges">
+          <span className="bento-doc-card-badge topic">
             {TOPIC_LABELS[document.topic] || document.topic}
           </span>
-          <span style={{ ...styles.badge, background: status.color, color: status.text }}>
-            {status.label}
+          <span className={`bento-doc-card-badge status-${statusKey}`}>
+            {statusLabel}
           </span>
           {document.shareSettings?.isPublic && (
-            <span style={{ ...styles.badge, background: 'var(--color-status-translated-bg)', color: 'var(--color-text-success)' }}>
+            <span className="bento-doc-card-badge share">
               Đã chia sẻ
             </span>
           )}
@@ -71,36 +77,41 @@ export function DocumentCard({ document, onOpen, onDelete, onRename }) {
             }}
             onClick={e => e.stopPropagation()}
             autoFocus
-            style={styles.titleInput}
+            aria-label="Đổi tên tài liệu"
+            className="bento-doc-card-title-edit"
           />
         ) : (
-          <p
-            style={styles.title}
+          <h3
+            className="bento-doc-card-title"
             onDoubleClick={e => { e.stopPropagation(); setIsEditing(true); }}
-            title="Double-click để đổi tên"
+            title={displayTitle}
           >
             {displayTitle}
-          </p>
+          </h3>
         )}
 
         {/* Stats */}
-        <div style={styles.statsRow}>
-          <span>{completed}/{total} đoạn</span>
-          <span>{(document.translatedWords || 0).toLocaleString()} từ</span>
-          <span>{document.fileMetadata?.pages || '?'} trang</span>
+        <div className="bento-doc-card-stats">
+          <span className="bento-doc-card-stat">{completed}/{total} đoạn</span>
+          <span className="bento-doc-card-stat">{(document.translatedWords || 0).toLocaleString()} từ</span>
+          <span className="bento-doc-card-stat">{document.fileMetadata?.pages || '?'} trang</span>
         </div>
 
         {/* Footer */}
-        <div style={styles.footer}>
-          <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+        <div className="bento-doc-card-footer">
+          <span className="bento-doc-card-time">
             {formatRelativeTime(document.updatedAt)}
           </span>
-          <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
-            <button style={styles.iconBtn} onClick={onOpen} title="Mở">↗</button>
+          <div className="bento-doc-card-actions" onClick={e => e.stopPropagation()}>
             <button
-              style={{ ...styles.iconBtn, color: 'var(--color-text-danger)' }}
+              className="bento-doc-card-action"
+              onClick={onOpen}
+              aria-label="Mở tài liệu"
+            >↗</button>
+            <button
+              className="bento-doc-card-action delete"
               onClick={onDelete}
-              title="Xóa"
+              aria-label="Xoá tài liệu"
             >✕</button>
           </div>
         </div>
@@ -108,51 +119,3 @@ export function DocumentCard({ document, onOpen, onDelete, onRename }) {
     </div>
   );
 }
-
-const styles = {
-  card: {
-    background: 'var(--color-background-primary)',
-    borderRadius: 'var(--border-radius-lg)',
-    border: '1px solid var(--color-border-secondary)',
-    cursor: 'pointer',
-    transition: 'box-shadow var(--transition-base), transform var(--transition-base)',
-    overflow: 'hidden',
-  },
-  progressTrack: {
-    height: 3, background: 'var(--color-background-secondary)',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%', borderRadius: 'inherit',
-    transition: 'width 0.3s',
-  },
-  badge: {
-    padding: '2px 8px', borderRadius: 'var(--border-radius-full)',
-    fontSize: 11, fontWeight: 500,
-  },
-  title: {
-    fontSize: 14, fontWeight: 500, margin: '0 0 4px',
-    color: 'var(--color-text-primary)',
-    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-  },
-  titleInput: {
-    width: '100%', padding: '4px 8px', fontSize: 14, fontWeight: 500,
-    border: '1px solid var(--color-border-secondary)',
-    borderRadius: 'var(--border-radius-sm)',
-    background: 'var(--color-background-primary)',
-    color: 'var(--color-text-primary)', boxSizing: 'border-box',
-    marginBottom: 4,
-  },
-  statsRow: {
-    display: 'flex', gap: 12, fontSize: 12,
-    color: 'var(--color-text-tertiary)', margin: '8px 0 12px',
-  },
-  footer: {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-  },
-  iconBtn: {
-    background: 'none', border: 'none', cursor: 'pointer',
-    fontSize: 14, color: 'var(--color-text-secondary)',
-    padding: '4px 6px', borderRadius: 'var(--border-radius-sm)',
-  },
-};
