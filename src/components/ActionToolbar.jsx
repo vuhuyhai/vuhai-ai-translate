@@ -224,13 +224,10 @@ export const ActionToolbar = React.memo(function ActionToolbar({
   }, [sections, sectionStates, exportConfig, pdfFile, libraryDocId, isPdfExporting]);
 
   return (
-    <div className="action-toolbar" style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      flexWrap: 'wrap', gap: 12, marginBottom: 20,
-    }}>
-      <div className="toolbar-left" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <div className="action-toolbar">
+      <div className="toolbar-left">
         <button
-          className="btn btn-primary-lg"
+          className="toolbar-btn-primary-lg"
           onClick={onTranslateAll}
           disabled={isAnyWorking || allTranslated}
         >
@@ -239,20 +236,20 @@ export const ActionToolbar = React.memo(function ActionToolbar({
         </button>
 
         {hasAnyTranslation && (
-          <button className="btn btn-review-lg" onClick={onReviewAll} disabled={isAnyWorking}>
+          <button className="toolbar-btn-review-lg" onClick={onReviewAll} disabled={isAnyWorking}>
             ✨ Duyệt lại tất cả
           </button>
         )}
       </div>
 
-      <div className="toolbar-right" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className="toolbar-right">
         {pdfFile?.sourceType === 'url' && pdfFile?.sourceUrl && (
-          <a href={pdfFile.sourceUrl} target="_blank" rel="noopener noreferrer"
-            style={{
-              fontSize: 11, color: 'var(--color-info)',
-              textDecoration: 'none', display: 'flex',
-              alignItems: 'center', gap: 4,
-            }}>
+          <a
+            href={pdfFile.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="toolbar-source-link"
+          >
             🔗 Xem bài gốc
           </a>
         )}
@@ -264,36 +261,25 @@ export const ActionToolbar = React.memo(function ActionToolbar({
         {hasAnyTranslation && (
           <>
             <button
-              className="btn"
+              className={`toolbar-btn-save ${isSaving ? 'is-saving' : ''} ${savedJust ? 'is-saved' : ''}`}
               onClick={handleManualSave}
               disabled={isSaving}
-              style={{
-                padding: '7px 16px', borderRadius: 'var(--border-radius-md)',
-                border: savedJust ? '1.5px solid var(--color-success)' : '1.5px solid var(--color-primary)',
-                background: savedJust ? 'var(--color-success-light, #f0fdf4)' : 'transparent',
-                color: savedJust ? 'var(--color-success, #16a34a)' : 'var(--color-primary)',
-                fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap',
-                cursor: isSaving ? 'not-allowed' : 'pointer',
-                opacity: isSaving ? 0.6 : 1, transition: 'all 0.2s',
-              }}
             >
               {isSaving ? '⏳ Đang lưu...' : savedJust ? '✅ Đã lưu!' : '💾 Lưu bản dịch'}
             </button>
-            <button className="btn btn-ghost" onClick={handleCopy}>
+
+            <button className="toolbar-btn-ghost" onClick={handleCopy}>
               {copied ? '✅ Đã copy toàn bộ!' : '📋 Copy văn bản'}
             </button>
-            <button className="btn btn-primary" onClick={onDownloadDoc}>📄 Tải .doc</button>
+
+            <button className="toolbar-btn-doc" onClick={onDownloadDoc}>
+              📄 Tải .doc
+            </button>
+
             <button
-              className="btn"
+              className="toolbar-btn-pdf"
               onClick={handlePdfExport}
               disabled={!hasAnyTranslation || isPdfExporting}
-              style={{
-                padding: '7px 16px', borderRadius: 'var(--border-radius-md)',
-                border: 'none', background: '#DC2626', color: '#fff',
-                fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap',
-                cursor: isPdfExporting ? 'not-allowed' : 'pointer',
-                opacity: isPdfExporting ? 0.6 : 1, transition: 'all 0.15s',
-              }}
             >
               {isPdfExporting ? '⏳ Đang xuất...' : '📄 Xuất PDF hoàn chỉnh'}
             </button>

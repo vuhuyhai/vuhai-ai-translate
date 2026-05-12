@@ -1,0 +1,370 @@
+/**
+ * VuHai AI Translate — Bento P1 for workspace ready chrome
+ * M1.6b — FileInfoBar + ActionToolbar + TabBar (embedded in toolbar).
+ *
+ * Composition (rendered in App.jsx stage=ready, order):
+ *   <FileInfoBar />     — file metadata + 2 reset buttons
+ *   <ActionToolbar />   — primary actions + TabBar embedded + export buttons
+ *
+ * Button hierarchy (8 variants):
+ * - Cinnamon solid LG: "Dịch tất cả" (primary)
+ * - Purple solid LG:   "Duyệt lại tất cả" (review primary, 2nd accent)
+ * - Cinnamon outline:  "Tải .doc" (export alternative)
+ * - Cinnamon-hi solid: "Xuất PDF hoàn chỉnh" (final action, darker)
+ * - Ghost neutral:     "Lưu bản dịch" idle, "Copy", "Upload mới", "URL mới"
+ * - Purple-glow:       "Lưu bản dịch" saved state (consistent with reviewed badge)
+ * - TabBar pill-tabs:  cinnamon active (mirror M1.5b switcher pattern)
+ */
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* FileInfoBar                                                      */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.file-info-bar {
+  background: var(--bento-bg-card);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: 16px 20px;
+  margin-bottom: var(--bento-space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--bento-space-2);
+}
+
+.fi-left {
+  display: flex;
+  align-items: center;
+  gap: var(--bento-space-2);
+}
+
+.fi-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--bento-radius-sm);
+  background: var(--bento-accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fi-title {
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-body);
+  font-weight: 600;
+  color: var(--bento-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.fi-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bento-font-body);
+  font-size: var(--bento-text-micro);
+  color: var(--bento-text-tertiary);
+  margin-top: 2px;
+}
+
+.fi-meta-dot {
+  opacity: 0.4;
+}
+
+.fi-meta-progress {
+  color: var(--bento-accent);
+  font-weight: 600;
+}
+
+.fi-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fi-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.fi-badge.is-translated {
+  background: var(--bento-accent-glow);
+  color: var(--bento-accent-hi);
+}
+
+.fi-badge.is-reviewed {
+  background: var(--bento-accent-2-glow);
+  color: var(--bento-accent-2-hi);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ActionToolbar layout                                             */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.action-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--bento-space-2);
+  margin-bottom: var(--bento-space-3);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar-source-link {
+  font-family: var(--bento-font-body);
+  font-size: 11px;
+  color: var(--bento-text-secondary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--bento-radius-sm);
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.toolbar-source-link:hover {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* 8 button variants (self-contained, no shared btn class)         */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.toolbar-btn-primary-lg,
+.toolbar-btn-review-lg,
+.toolbar-btn-doc,
+.toolbar-btn-pdf,
+.toolbar-btn-save,
+.toolbar-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--bento-radius-sm);
+  font-family: var(--bento-font-display);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              border-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+/* Primary large — "Dịch tất cả" */
+.toolbar-btn-primary-lg {
+  background: var(--bento-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  padding: 10px 20px;
+}
+.toolbar-btn-primary-lg:hover:not(:disabled) {
+  background: var(--bento-accent-hi);
+  border-color: var(--bento-accent-hi);
+}
+.toolbar-btn-primary-lg:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Review large — "Duyệt lại tất cả" (2nd accent) */
+.toolbar-btn-review-lg {
+  background: var(--bento-accent-2);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent-2);
+  font-size: var(--bento-text-small);
+  font-weight: 500;
+  padding: 10px 20px;
+}
+.toolbar-btn-review-lg:hover:not(:disabled) {
+  background: var(--bento-accent-2-hi);
+  border-color: var(--bento-accent-2-hi);
+}
+.toolbar-btn-review-lg:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* DOC export — outline cinnamon */
+.toolbar-btn-doc {
+  background: transparent;
+  color: var(--bento-accent);
+  border: 1px solid var(--bento-accent);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+}
+.toolbar-btn-doc:hover:not(:disabled) {
+  background: var(--bento-accent-glow);
+}
+
+/* PDF export — cinnamon-hi solid (final action, darker than primary) */
+.toolbar-btn-pdf {
+  background: var(--bento-accent-hi);
+  color: #FFFFFF;
+  border: 1px solid var(--bento-accent-hi);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+}
+.toolbar-btn-pdf:hover:not(:disabled) {
+  background: #A03D1A;
+  border-color: #A03D1A;
+}
+.toolbar-btn-pdf:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Save — 3 states (idle / saving / saved) */
+.toolbar-btn-save {
+  background: transparent;
+  color: var(--bento-accent);
+  border: 1px solid var(--bento-accent);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+}
+.toolbar-btn-save:hover:not(:disabled):not(.is-saved) {
+  background: var(--bento-accent-glow);
+}
+.toolbar-btn-save.is-saving {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.toolbar-btn-save.is-saved {
+  background: var(--bento-accent-2-glow);
+  color: var(--bento-accent-2-hi);
+  border-color: var(--bento-accent-2);
+}
+
+/* Ghost — neutral utility */
+.toolbar-btn-ghost {
+  background: transparent;
+  color: var(--bento-text-secondary);
+  border: 1px solid var(--bento-border-hi);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+}
+.toolbar-btn-ghost:hover:not(:disabled) {
+  background: var(--bento-bg-card-hi);
+  color: var(--bento-text-primary);
+  border-color: var(--bento-text-tertiary);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* TabBar (segmented control, embedded in toolbar-right)           */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.tab-bar {
+  display: inline-flex;
+  background: var(--bento-bg-card-hi);
+  border-radius: var(--bento-radius-sm);
+  padding: 3px;
+  gap: 1px;
+}
+
+.tab-btn {
+  border: none;
+  border-radius: var(--bento-radius-sm);
+  padding: 6px 14px;
+  font-family: var(--bento-font-display);
+  font-size: var(--bento-text-micro);
+  font-weight: 500;
+  background: transparent;
+  color: var(--bento-text-secondary);
+  cursor: pointer;
+  letter-spacing: 0;
+  transition: background-color var(--bento-dur-hover) var(--bento-ease-quiet),
+              color var(--bento-dur-hover) var(--bento-ease-quiet);
+}
+
+.tab-btn:hover:not(.tab-active):not(:disabled) {
+  color: var(--bento-text-primary);
+}
+
+.tab-btn.tab-active {
+  background: var(--bento-bg-card);
+  color: var(--bento-accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(42, 37, 32, 0.06);
+}
+
+.tab-btn:disabled {
+  color: var(--bento-text-tertiary);
+  cursor: not-allowed;
+}
+
+.tab-btn:focus-visible {
+  outline: 2px solid var(--bento-accent);
+  outline-offset: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Mobile responsive                                                */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  .file-info-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .action-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .toolbar-btn-primary-lg,
+  .toolbar-btn-review-lg {
+    flex: 1;
+    justify-content: center;
+  }
+  .toolbar-right > button {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 479px) {
+  .toolbar-btn-primary-lg,
+  .toolbar-btn-review-lg {
+    font-size: 12px;
+    padding: 8px 14px;
+  }
+  .toolbar-right > button {
+    font-size: 11px;
+    padding: 7px 8px;
+  }
+}
